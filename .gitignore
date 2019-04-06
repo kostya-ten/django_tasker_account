@@ -102,3 +102,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# project
+django_tasker_account/
+templates/
+db.sqlite3
+manage.py
+.idea/
