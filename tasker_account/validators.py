@@ -10,7 +10,15 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
 
-def mobile_number(number):
+def mobile_number(number: int) -> str:
+    """
+    Checks the validity of a mobile phone number.
+
+    :param number: mobile phone number.
+    :returns: number
+    :raise: ValidationError If the mobile phone number is not valid
+    """
+
     match = re.search(r'^[0-9]+$', str(number))
     if not match:
         raise ValidationError(_("Invalid mobile phone number"))
@@ -23,7 +31,14 @@ def mobile_number(number):
         return number
 
 
-def username(username):
+def username(username: str) -> str:
+    """
+    Checks the validity of an username.
+
+    :param username: User name сhecked.
+    :returns: username
+    :raise: ValidationError If the username is not a regular expression ^[a-z]+[a-z0-9]+[_-]?[a-z0-9]+$
+    """
     username = username.lower().strip()
 
     match = re.search(r'^[a-z]+[a-z0-9]+[_-]?[a-z0-9]+$', username)
@@ -35,7 +50,15 @@ def username(username):
         raise ValidationError(_(message))
 
 
-def username_dublicate(username):
+def username_dublicate(username: str) -> str:
+    """
+    Checks the dublicate an username.
+
+    :param username: User name сhecked.
+    :returns: username
+    :raise: ValidationError If the username is dublicate
+    """
+
     username = username.lower().strip()
 
     user = User.objects.filter(username=username)
@@ -46,6 +69,13 @@ def username_dublicate(username):
 
 
 def email(email):
+    """
+    Checks the validity syntax of an email
+
+    :param email: email address
+    :returns: email
+    :raise: ValidationError If the incorrect email address
+    """
     email = email.lower().strip()
 
     user = email.rsplit('@', 1)[0]
@@ -62,6 +92,13 @@ def email(email):
 
 
 def email_dublicate(email):
+    """
+    Checks the dublicate an email
+
+    :param email: email address
+    :returns: email
+    :raise: ValidationError If the email address is dublicate
+    """
     email = email.lower().strip()
 
     user = email.rsplit('@', 1)[0]
