@@ -47,7 +47,7 @@ def detect_ip(query: str) -> models.Geobase:
 
     latitude = None
     longitude = None
-    if ip.version == 4 and ip.is_global:
+    if ip.version == 4 and ip.is_global and settings.YANDEX_LOCATOR_KEY:
         json_params = json.dumps({
             "common": {
                 "version": "1.0",
@@ -66,6 +66,11 @@ def detect_ip(query: str) -> models.Geobase:
                 latitude = locator_result.get('position').get('latitude')
                 longitude = locator_result.get('position').get('longitude')
 
+    elif ip.version == 4 and ip.is_global:
+        g = GeoIP2()
+        geoip = g.city(str(ip))
+        latitude = geoip.get('latitude')
+        longitude = geoip.get('longitude')
     elif ip.version == 6 and ip.is_global:
         g = GeoIP2()
         geoip = g.city(str(ip))
