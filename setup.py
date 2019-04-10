@@ -8,13 +8,13 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name='django-id',
+    name='tasker_account',
     version='0.01',
-    packages=['id'],
+    packages=['tasker_account'],
     include_package_data=True,
     license='Apache License',
     description=README,
-    long_description='A simple Django app to conduct Web-based id.',
+    long_description='A simple Django app to conduct Web-based.',
     url='https://github.com/kostya-ten/django-id',
     author='Kostya Ten',
     author_email='kostya@yandex.com',
