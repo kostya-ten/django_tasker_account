@@ -1,8 +1,24 @@
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import TestCase, override_settings, RequestFactory
 from django.core.exceptions import ValidationError
+from django.contrib.sessions.middleware import SessionMiddleware
 
-from . import validators, geobase, forms, models
+from . import validators, geobase, forms, views, models
+
+
+class Request:
+    def generate_request(self, request):
+        # adding session
+        middleware = SessionMiddleware()
+        middleware.process_request(request)
+        request.session.save()
+
+        # adding messages
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+        return request
 
 
 class Validators(TestCase):
@@ -103,6 +119,18 @@ class Validators(TestCase):
         # Valid
         self.assertEqual(validators.email_dublicate('kazerogova@example.org'), 'kazerogova@example.org')
 
+    def test_email_blacklist(self):
+        with self.assertRaises(ValidationError):
+            validators.email_blacklist('example@2mailnext.com')
+
+    def test_password(self):
+        with self.assertRaises(ValidationError):
+            validators.password('嗨')
+
+        self.assertEqual(validators.password('password'), 'password')
+        self.assertEqual(validators.password('pass#word'), 'pass#word')
+        self.assertEqual(validators.password('`@#$%^&*()_=+\[\]{};:"\\|.,'), '`@#$%^&*()_=+\[\]{};:"\\|.,')
+
 
 @override_settings(
     ALLOWED_HOSTS=['localhost'],
@@ -141,7 +169,7 @@ class Geobase(TestCase):
     ALLOWED_HOSTS=['localhost'],
     CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
 )
-class Form(TestCase):
+class Form(TestCase, Request):
     def test_login(self):
         User.objects.create_user(username='username', password='Qazwsx123', email='devnull@example.com')
 
@@ -191,3 +219,66 @@ class Form(TestCase):
         form = forms.Login(data={'username': 'IncorrectUsername', 'password': 'Qazwsx123'}, request=request)
         self.assertFalse(form.is_valid())
 
+        # View login correct
+        request = factory.get('/accounts/login/')
+        response = views.login(request)
+        self.assertEqual(response.status_code, 200)
+
+        request = factory.post('/accounts/login/', {'username': 'username', 'password': 'Qazwsx123'})
+        request = self.generate_request(request)
+        response = views.login(request)
+        self.assertEqual(response.status_code, 302)
+
+        request = factory.post('/accounts/login/', {'username': 'USERNAME', 'password': 'Qazwsx123'})
+        request = self.generate_request(request)
+        response = views.login(request)
+        self.assertEqual(response.status_code, 302)
+
+        request = factory.post('/accounts/login/', {'username': '   USERNAME   ', 'password': '   Qazwsx123   '})
+        request = self.generate_request(request)
+        response = views.login(request)
+        self.assertEqual(response.status_code, 302)
+
+        request = factory.post('/accounts/login/', {'username': 'devnull@example.com', 'password': 'Qazwsx123'})
+        request = self.generate_request(request)
+        response = views.login(request)
+        self.assertEqual(response.status_code, 302)
+
+        # View login incorrect
+        request = factory.post('/accounts/login/', {'username': 'username', 'password': 'Qazwsx124'})
+        request = self.generate_request(request)
+        response = views.login(request)
+        self.assertEqual(response.status_code, 400)
+
+    def test_signup(self):
+        User.objects.create_user(username='username', password='Qazwsx123', email='devnull@example.com')
+
+        # Correct data
+        form = forms.Signup(data={
+            'username': 'username2',
+            'last_name': 'Kazerogova',
+            'first_name': 'Lilu',
+            'email': 'kazerogova@example.com',
+            'password1': 'na0tKtKdHY',
+            'password2': 'na0tKtKdHY',
+        })
+        self.assertTrue(form.is_valid())
+
+        # Incorrect data
+        form = forms.Signup(data={})
+        self.assertTrue(form.has_error('username'))
+        self.assertTrue(form.has_error('last_name'))
+        self.assertTrue(form.has_error('first_name'))
+        self.assertTrue(form.has_error('email'))
+        self.assertTrue(form.has_error('password1'))
+        self.assertTrue(form.has_error('password2'))
+        self.assertFalse(form.is_valid())
+
+        form = forms.Signup(data={'username': 'username'})
+        self.assertTrue(form.has_error('username'))
+
+        form = forms.Signup(data={'username': 'username2'})
+        self.assertTrue(form.has_error('last_name'))
+
+        form = forms.Signup(data={'username': 'username2', 'last_name': 'last_name'})
+        self.assertTrue(form.has_error('first_name'))

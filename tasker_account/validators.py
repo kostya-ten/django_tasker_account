@@ -68,7 +68,7 @@ def username_dublicate(username: str) -> str:
     return username
 
 
-def email(email):
+def email(email: str) -> str:
     """
     Checks the validity syntax of an email
 
@@ -86,12 +86,12 @@ def email(email):
     try:
         validate_email(email)
     except EmailNotValidError:
-        raise ValidationError(_("Enter a valid email address."))
+        raise ValidationError(_("Email address is not valid"))
 
     return email
 
 
-def email_dublicate(email):
+def email_dublicate(email: str) -> str:
     """
     Checks the dublicate an email
 
@@ -110,3 +110,87 @@ def email_dublicate(email):
         raise ValidationError(_("User with this email is already exists."))
 
     return email
+
+
+def email_blacklist(email: str) -> str:
+    """
+    Checks the blacklist db an email
+
+    :param email: email address
+    :returns: email
+    :raise: ValidationError If the email address is blacklist db
+    """
+    email = email.lower().strip()
+    domain = email.rsplit('@', 1)[-1]
+    if domain == 'for4mail.com'\
+            or domain == '2mailnext.com'\
+            or domain == 'prmail.top'\
+            or domain == 'youmails.online'\
+            or domain == 'reddcoin2.com'\
+            or domain == 'proto2mail.com'\
+            or domain == 'mail-2-you.com'\
+            or domain == 'for4mail.com'\
+            or domain == '2mailnext.top'\
+            or domain == 'jo-mail.com'\
+            or domain == 'mailapps.online'\
+            or domain == 'plutocow.com'\
+            or domain == 'ezehe.com'\
+            or domain == 'sharklasers.com'\
+            or domain == 'guerrillamail.info'\
+            or domain == 'grr.la'\
+            or domain == 'guerrillamail.biz'\
+            or domain == 'guerrillamail.com'\
+            or domain == 'guerrillamail.de'\
+            or domain == 'guerrillamail.net'\
+            or domain == 'guerrillamail.org'\
+            or domain == 'guerrillamailblock.com'\
+            or domain == 'pokemail.net'\
+            or domain == 'spam4.me'\
+            or domain == 'fosil.pro'\
+            or domain == 'socrazy.club'\
+            or domain == 'getamailbox.org'\
+            or domain == 'ourawesome.life' \
+            or domain == 'mailboxonline.org' \
+            or domain == 'careless-whisper.com' \
+            or domain == 'ourawesome.life' \
+            or domain == 'ourawesome.online' \
+            or domain == 'secure-box.info' \
+            or domain == 'secure-box.online' \
+            or domain == 'socrazy.club' \
+            or domain == 'socrazy.online' \
+            or domain == 'yevme.com' \
+            or domain == 'trashmail.com' \
+            or domain == '0box.eu' \
+            or domain == 'contbay.com' \
+            or domain == 'damnthespam.com' \
+            or domain == 'kurzepost.de' \
+            or domain == 'objectmail.com' \
+            or domain == 'proxymail.eu' \
+            or domain == 'rcpt.at' \
+            or domain == 'trash-mail.at' \
+            or domain == 'trashmail.at' \
+            or domain == 'trashmail.com' \
+            or domain == 'trashmail.io' \
+            or domain == 'trashmail.me' \
+            or domain == 'trashmail.net' \
+            or domain == 'wegwerfmail.de' \
+            or domain == 'wegwerfmail.net' \
+            or domain == 'wegwerfmail.org':
+        raise ValidationError(_("Email address cannot be registered!"))
+    return email
+
+
+def password(password: str) -> str:
+    """
+    Checks the password syntax
+
+    :param password: password
+    :returns: password
+    :raise: ValidationError If the password is not correct
+    """
+    match = re.search(r'^[a-z0-9`@#$%^&*()_=+\[\]{};:"\\|.,]+$', password, re.IGNORECASE)
+    if not match:
+        err = _('For the password, you can use only Latin letters, numbers, and symbols')
+        raise ValidationError(err)
+
+    return password

@@ -1,6 +1,7 @@
 import hashlib
 import json
 import requests
+import logging
 
 from ipaddress import ip_address
 from timezonefinder import TimezoneFinder
@@ -11,10 +12,18 @@ from django.contrib.gis.geoip2 import GeoIP2
 from django.core.cache import cache
 from django.core.handlers.wsgi import WSGIRequest
 
-from .models import GeobaseCountry, GeobaseProvince, GeobaseLocality, GeobaseTimezone, Geobase
+from . import models
+
+logger = logging.getLogger('tasker_account')
 
 
-def detect_ip(query):
+def detect_ip(query: str) -> models.Geobase:
+    """
+    Calculates geolocation by IP address.
+
+    :param query: ip address IPv4 or IPv6.
+    :returns: Geobase
+    """
     if query and isinstance(query, WSGIRequest):
         x_forwarded_for = query.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
@@ -33,7 +42,8 @@ def detect_ip(query):
     # Cache IP address
     cache_detect = cache.get("{name}-{ip}".format(ip=str(ip), name=__name__))
     if cache_detect:
-        return Geobase.objects.get(id=cache_detect)
+        logger.debug("Get geobase cached data ip:{ip}, id:{id}".format(ip=str(ip), id=cache_detect))
+        return models.Geobase.objects.get(id=cache_detect)
 
     latitude = None
     longitude = None
@@ -71,13 +81,19 @@ def detect_ip(query):
     return geobase
 
 
-def geocoder(query):
+def geocoder(query: str) -> models.Geobase:
+    """
+    Calculates geolocation an address object.
+
+    :param query: Address or geographical the object
+    :returns: Geobase
+    """
     hash = hashlib.sha1()
     hash.update(query.encode('utf-8'))
 
     cache_geocoder = cache.get("{name}-{hash}".format(hash=hash.hexdigest(), name=__name__))
     if cache_geocoder:
-        return get_object_or_404(Geobase, id=cache_geocoder)
+        return get_object_or_404(models.Geobase, id=cache_geocoder)
 
     en = _geocoder(query, language='en')
     if not en:
@@ -112,12 +128,12 @@ def geocoder(query):
             'longitude': -0.127664,
         }
 
-    country, created = GeobaseCountry.objects.update_or_create(en=en.get('country'), ru=ru.get('country'))
-    province, created = GeobaseProvince.objects.update_or_create(en=en.get('province'), ru=ru.get('province'))
-    locality, created = GeobaseLocality.objects.update_or_create(en=en.get('locality'), ru=ru.get('locality'))
-    timezone, created = GeobaseTimezone.objects.update_or_create(name=en.get('timezone'))
+    country, created = models.GeobaseCountry.objects.update_or_create(en=en.get('country'), ru=ru.get('country'))
+    province, created = models.GeobaseProvince.objects.update_or_create(en=en.get('province'), ru=ru.get('province'))
+    locality, created = models.GeobaseLocality.objects.update_or_create(en=en.get('locality'), ru=ru.get('locality'))
+    timezone, created = models.GeobaseTimezone.objects.update_or_create(name=en.get('timezone'))
 
-    geobase, created = Geobase.objects.update_or_create(
+    geobase, created = models.Geobase.objects.update_or_create(
         country=country,
         province=province,
         locality=locality,
