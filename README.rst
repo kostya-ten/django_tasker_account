@@ -11,7 +11,7 @@ Configuring
     ==================== =========== =================================================================================================
     YANDEX_MAP_KEY       *Required*  The Geocoder can get a geo object's coordinates
     YANDEX_LOCATOR_KEY   None        Locator locates the user
-    GEOIP_PATH           *Required*  Geolocation with GeoIP2  `see  <https://docs.djangoproject.com/en/dev/ref/contrib/gis/geoip2/>`_
+    GEOIP_PATH           *Required*  Geolocation with GeoIP2  `documentation  <https://docs.djangoproject.com/en/dev/ref/contrib/gis/geoip2/>`_
     ==================== =========== =================================================================================================
 
 Where to get the keys?
