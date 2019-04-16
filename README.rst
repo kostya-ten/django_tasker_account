@@ -45,8 +45,19 @@ Requirements
 
 Installation
 """"""""""""""""""
-#. Install using pip: ``pip install django_tasker_account``
-#. Add to INSTALLED_APPS in your ``settings.py``: ``'django_tasker_account',``
+1. Install using pip ``pip install django_tasker_account``
+
+2. Add to INSTALLED_APPS
+
+.. code-block:: python
+
+    INSTALLED_APPS = (
+        # ...
+        'django_tasker_account',
+        # ...
+    )
+
+
 
 Configuring
 """"""""""""""""""
