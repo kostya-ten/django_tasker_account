@@ -68,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-#WSGI_APPLICATION = 'django_tasker_account.wsgi.application'
+WSGI_APPLICATION = 'tests.wsgi.application'
 
 
 # Database
@@ -77,7 +77,7 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 

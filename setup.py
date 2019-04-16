@@ -10,7 +10,12 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 setup(
     name='tasker_account',
     version='0.01',
-    packages=['tasker_account'],
+    packages=[
+        'tests',
+        'tasker_account',
+        'tasker_account.migrations',
+        'tasker_account.templates',
+    ],
     include_package_data=True,
     license='Apache License',
     description=README,
