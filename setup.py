@@ -1,3 +1,4 @@
+import io
 import os
 from setuptools import find_packages, setup
 
@@ -11,18 +12,18 @@ with io.open("README.rst", encoding="UTF-8") as readme:
     long_description = readme.read()
     
 setup(
-    name='tasker_account',
-    version='0.01',
+    name='django_tasker_account',
+    version='0.2',
     packages=[
         'tests',
-        'tasker_account',
-        'tasker_account.migrations',
-        'tasker_account.templates',
-        'tasker_account.templates.tasker_account',
-        'tasker_account.management.commands',
+        'django_tasker_account',
+        'django_tasker_account.migrations',
+        'django_tasker_account.templates',
+        'django_tasker_account.templates.django_tasker_account',
+        'django_tasker_account.management.commands',
     ],
     include_package_data=True,
-    license='Apache License',
+    license='Apache License 2.0',
     description="Django Tasker Account - Extended user system for Django",
     long_description=long_description,
     url='https://github.com/kostya-ten/django_tasker_account/',
@@ -37,12 +38,19 @@ setup(
         'Framework :: Django :: 2.2',
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
-        'License :: OSI Approved :: Apache License'
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-    ]
+        'License :: OSI Approved :: Apache Software License',
+    ],
+    project_urls={
+        'Documentation': 'https://django-tasker-account.readthedocs.io/',
+        'Source': 'https://github.com/kostya-ten/django_tasker_account/',
+        'Tracker': 'https://github.com/kostya-ten/django_tasker_account/issues',
+    },
+    python_requires='>=3'
+
 )

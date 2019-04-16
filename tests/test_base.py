@@ -7,7 +7,7 @@ from django.test import TestCase, override_settings, RequestFactory
 from django.core.exceptions import ValidationError
 from django.contrib.sessions.middleware import SessionMiddleware
 
-from tasker_account import validators, geobase, forms, views, models
+from django_tasker_account import validators, geobase, forms, views, models
 
 
 class Request:

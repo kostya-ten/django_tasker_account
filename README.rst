@@ -48,7 +48,7 @@ Getting It
 
 You can get Django Tasker Account by using pip::
 
-    $ pip install django_tasker_account
+    $ pip install django-tasker-account
 
 If you want to install it from source, grab the git repository from GitHub and run setup.py::
 
@@ -85,7 +85,7 @@ Configuring
     ==================== =========== =================================================================================================
 
 Where to get the keys?
-""""""""""""""""""
+""""""""""""""""""""""
 YANDEX_MAP_KEY - https://tech.yandex.com/maps/
 
 YANDEX_LOCATOR_KEY - https://tech.yandex.ru/locator/ (Russian)
