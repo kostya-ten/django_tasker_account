@@ -23,6 +23,15 @@ Features
    * Filling user profile from provider OAuth
    * Automatic download avatar
 * 2FA
+* Pages
+   * Login page
+   * Sign up page (sending a confirmation email)
+   * Page forgot password
+   * User profile page
+     * Page change password
+     * Page change firstname, lastname, gender, birth date
+     * Set 2FA
+     * Upload avatar
 
 Configuring
 """"""""""""""""""
