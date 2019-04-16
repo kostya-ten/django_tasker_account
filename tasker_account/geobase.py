@@ -50,11 +50,12 @@ def detect_ip(query: str) -> models.Geobase:
     latitude = None
     longitude = None
 
-    if ip.version == 4 and ip.is_global and getattr(settings, 'YANDEX_LOCATOR_KEY', os.environ.get('YANDEX_LOCATOR_KEY')):
+    YANDEX_LOCATOR_KEY = getattr(settings, 'YANDEX_LOCATOR_KEY', os.environ.get('YANDEX_LOCATOR_KEY'))
+    if ip.version == 4 and ip.is_global and YANDEX_LOCATOR_KEY:
         json_params = json.dumps({
             "common": {
                 "version": "1.0",
-                "api_key": getattr(settings, 'YANDEX_LOCATOR_KEY', os.environ.get('YANDEX_LOCATOR_KEY')),
+                "api_key": YANDEX_LOCATOR_KEY,
             },
             "gsm_cells": [],
             "wifi_networks": [],
