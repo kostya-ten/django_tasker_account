@@ -1,0 +1,51 @@
+{% load i18n %}
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type"  content="text/html; charset=UTF-8" />
+<title></title>
+<style>
+    .mail-address a,
+    .mail-address a[href] {
+        text-decoration: none !important;
+        color: #000000 !important;
+    }
+</style>
+</head>
+<body>
+<table cellpadding="0" cellspacing="0" align="center" width="770px" style="font-family: Arial, sans-serif; color: #000000; background-color: #f8f8f8; background-repeat: repeat; font-size: 14px;">
+    <tr>
+        <td style="padding-top: 60px; padding-right: 70px; padding-bottom: 60px; padding-left: 70px;">
+            <img src="" alt="" style="margin-left: 30px; margin-bottom: 15px;">
+            <table width="100%" cellpadding="0" cellspacing="0" align="center" style="border-color: #e6e6e6; border-width: 1px; border-style: solid; background-color: #fff; padding-top: 25px; padding-right: 0; padding-bottom: 50px; padding-left: 30px;">
+                <tr>
+                    <td style="padding: 0 30px 30px;">
+                        <p style="font-family: Arial, sans-serif; color: #000000; font-size: 19px; margin-top: 14px; margin-bottom: 0;">
+                            {% trans "Please confirm email address" %}
+                        </p>
+                        <p style="font-family: Arial, sans-serif; color: #000000; font-size: 14px; line-height: 17px; margin-top: 30px; margin-bottom: 0;">
+                                {% blocktrans %}
+                                    Verify your email address to activate your account.<br><br>
+                                    If you received it by mistake or sent it, please disregard this email.
+                                {% endblocktrans %}
+                            <br>
+                            <br>
+                            <a href="https://{{ host }}/accounts/confirm/email/{{ session_key }}/">https://{{ host }}/accounts/confirm/email/{{ session_key }}/</a>
+                        </p>
+                        <p style="font-family: Arial, sans-serif; color: #000000; font-size: 15px; font-style: italic; margin-top: 30px; margin-bottom: 0;"></p>
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" cellpadding="0" cellspacing="0" align="center">
+                <tr>
+                    <td style="padding-top: 12px;"></td>
+                </tr>
+                <tr>
+                    <td style="font-family: Arial, sans-serif; font-size: 12px; color: #888888; padding-right: 30px; padding-left: 30px;"></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
