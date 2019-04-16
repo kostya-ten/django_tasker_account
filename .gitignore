@@ -107,5 +107,4 @@ venv.bak/
 django_tasker_account/
 templates/
 db.sqlite3
-manage.py
 .idea/
