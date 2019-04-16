@@ -15,6 +15,6 @@ Configuring
 
 Where to get the keys?
 """"""""""""""""""
-YANDEX_LOCATOR_KEY - https://tech.yandex.ru/locator/ (Russian)
-
 YANDEX_MAP_KEY - https://tech.yandex.com/maps/
+
+YANDEX_LOCATOR_KEY - https://tech.yandex.ru/locator/ (Russian)
