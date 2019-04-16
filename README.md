@@ -1,2 +1,2 @@
-# django_tasker_account
+# Django tasker account
 Django account
