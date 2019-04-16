@@ -1,6 +1,29 @@
 Django Tasker Account - Extended user system for Django 2.x
 ------------------------------------------------------------------------
 
+Features
+""""""""""""""""""
+* Geocoding user (Automatic determination of the user's location during registration)
+* Automatic time zone change depending on user settings
+* Automatic language change depending on user settings  
+* User Profile
+   * Timezone
+   * Language
+   * Gender
+   * Birth date
+   * Mobile phone
+   * Avatar
+* OAuth
+   * Provider
+      * Yandex
+      * Mail.ru
+      * Facebook
+      * Google
+      * VK.com   
+   * Filling user profile from provider OAuth
+   * Automatic download avatar
+* 2FA
+
 Configuring
 """"""""""""""""""
 
