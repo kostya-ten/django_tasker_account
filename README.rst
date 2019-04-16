@@ -1,6 +1,10 @@
 Django Tasker Account - Extended user system for Django 2.x
 ------------------------------------------------------------------------
 
+.. image:: https://travis-ci.org/kostya-ten/django_tasker_account.svg?branch=master
+    :target: https://travis-ci.org/kostya-ten/django_tasker_account
+    
+    
 Features
 """"""""""""""""""
 * Geocoding user (Automatic determination of the user's location during registration)
