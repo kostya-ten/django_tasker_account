@@ -50,13 +50,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'django_tasker_account.urls'
-
+ROOT_URLCONF = 'tests.urls'
+SITE_ID = 1
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'tasker_account/templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -69,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'django_tasker_account.wsgi.application'
+#WSGI_APPLICATION = 'django_tasker_account.wsgi.application'
 
 
 # Database
@@ -78,7 +77,7 @@ WSGI_APPLICATION = 'django_tasker_account.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': ':memory:',
     }
 }
 
@@ -135,11 +134,5 @@ LOGGING = {
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
-
-
 GEOIP_PATH = "/var/lib/GeoIP/"
-YANDEX_MAP_KEY = '226f409c-bf72-4f48-b62c-85c427797555'
-YANDEX_LOCATOR_KEY = 'AN3bw1kBAAAAETv1AgIAGqQpaZRzB8D6WegI8xH10SEauTAAAAAAAAAAAADFtMoRBfMCj6KPyJwAOB7Vrt0vCw=='
-#HTML_INPUT_CLASS = 'form-control'

@@ -15,9 +15,9 @@ setup(
     license='Apache License',
     description=README,
     long_description='A simple Django app to conduct Web-based.',
-    url='https://github.com/kostya-ten/django-id',
+    url='https://github.com/kostya-ten/django_tasker_account/',
     author='Kostya Ten',
-    author_email='kostya@yandex.com',
+    author_email='kostya@yandex.ru',
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
@@ -30,14 +30,5 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-    ],
-    install_requires=[
-        'Django >= 2.2',
-        'Pillow >= 6.0.0',
-        'phonenumbers >= 8.10.6',
-        'email - validator >= 1.0.3',
-        'timezonefinder >= 4.0.2',
-        'geoip2 >= 2.9.0',
-        'requests >= 2.21.0',
     ]
 )
