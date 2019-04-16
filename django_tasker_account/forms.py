@@ -200,8 +200,8 @@ class Signup(UserCreationForm):
         logger.debug("Confirmation code: {session}".format(session=session.session_key))
         return session
 
-    def save(self):
-        return super().save(commit=True)
+    #def save(self):
+    #    return super().save(commit=True)
 
     class Meta:
         model = User
