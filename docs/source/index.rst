@@ -5,6 +5,11 @@
 
 Welcome to Django Tasker Account's documentation!
 =================================================
+.. automodule:: django_tasker_account.geobase
+    :members:
+
+.. automodule:: django_tasker_account.validators
+    :members:
 
 .. toctree::
    :maxdepth: 2
