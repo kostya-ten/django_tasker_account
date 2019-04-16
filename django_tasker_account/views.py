@@ -1,24 +1,10 @@
 from django.conf import settings
-from django.contrib import auth
 from django.shortcuts import render, redirect
 
-from . import models, forms
-
-"""
-views.py
-====================================
-The core module of my example project
-"""
+from . import forms
 
 
 def login(request):
-    """
-    Return the most important thing about a person.
-    Parameters
-    ----------
-    your_name
-        A string indicating the name of the person.
-    """
     if request.method == 'GET':
         return render(request, "django_tasker_account/login.html", {'form': forms.Login()})
 
