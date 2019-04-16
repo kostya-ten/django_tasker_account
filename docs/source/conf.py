@@ -42,6 +42,7 @@ templates_path = ['_templates']
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx']
 
 source_suffix = '.rst'
+master_doc = 'index'
 
 # -- Options for HTML output -------------------------------------------------
 
