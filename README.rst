@@ -34,6 +34,7 @@ Features
    * User profile page
       * Page change password
       * Page change firstname, lastname, gender, birth date
+      * Page change country and city
       * Set 2FA
       * Upload avatar
 
