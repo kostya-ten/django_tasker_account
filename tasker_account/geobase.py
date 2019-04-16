@@ -1,5 +1,7 @@
 import hashlib
 import json
+import os
+
 import requests
 import logging
 
@@ -47,11 +49,12 @@ def detect_ip(query: str) -> models.Geobase:
 
     latitude = None
     longitude = None
-    if ip.version == 4 and ip.is_global and settings.YANDEX_LOCATOR_KEY:
+
+    if ip.version == 4 and ip.is_global and getattr(settings, 'YANDEX_LOCATOR_KEY', os.environ.get('YANDEX_LOCATOR_KEY')):
         json_params = json.dumps({
             "common": {
                 "version": "1.0",
-                "api_key": settings.YANDEX_LOCATOR_KEY,
+                "api_key": getattr(settings, 'YANDEX_LOCATOR_KEY', os.environ.get('YANDEX_LOCATOR_KEY')),
             },
             "gsm_cells": [],
             "wifi_networks": [],
@@ -159,7 +162,7 @@ def _geocoder(query, language='en'):
     }
 
     params = {
-        "apikey": settings.YANDEX_MAP_KEY,
+        "apikey": getattr(settings, 'YANDEX_MAP_KEY', os.environ.get('YANDEX_MAP_KEY')),
         "format": "json",
         "geocode": query,
         "kind": "locality",
