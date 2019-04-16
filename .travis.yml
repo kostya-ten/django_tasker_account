@@ -11,8 +11,10 @@ python:
 
 notifications:
   email:
-    - "kostya@yandex.ru"
-    
+    - kostya@yandex.ru
+  on_success: never # default: change
+  on_failure: always # default: always
+  
 install:
   - pip install -r requirements.txt
 
