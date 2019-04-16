@@ -105,6 +105,5 @@ venv.bak/
 
 # project
 django_tasker_account/
-templates/
 db.sqlite3
 .idea/
