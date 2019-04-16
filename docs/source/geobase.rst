@@ -1,6 +1,6 @@
 ===============
-Geobase classes
+Geobase
 ===============
 
-.. automodule:: django_tasker_account.validators
+.. automodule:: django_tasker_account.geobase
     :members:
