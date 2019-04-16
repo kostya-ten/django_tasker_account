@@ -13,6 +13,10 @@ Welcome to Django Tasker Account's documentation!
     :target: https://django-tasker-account.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
+.. image:: https://api.codacy.com/project/badge/Grade/512d4c90fc16438a9063d08bdec48641
+    :target: https://www.codacy.com/app/kostya-ten/django_tasker_account?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=kostya-ten/django_tasker_account&amp;utm_campaign=Badge_Grade
+    :alt: Codacy Badge
+
 Features
 """"""""""""""""""
 * Geocoding user (Automatic determination of the user's location during registration)
