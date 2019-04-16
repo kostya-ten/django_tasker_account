@@ -179,8 +179,8 @@ class Signup(UserCreationForm):
         session['next'] = self.request.GET.get('next', '/')
         session.create()
 
-        subject = render_to_string('tasker_account/email/signup.subject.txt', {}).strip()
-        body = render_to_string('tasker_account/email/signup.body.html', {
+        subject = render_to_string('django_tasker_account/email/signup.subject.txt', {}).strip()
+        body = render_to_string('django_tasker_account/email/signup.body.html', {
             'session_key': session.session_key,
             'host': self.request.get_host()
         })
