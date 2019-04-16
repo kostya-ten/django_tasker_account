@@ -43,6 +43,11 @@ Requirements
 * Python 3.6+
 * A supported version of Django (currently 2.2)
 
+Installation
+""""""""""""""""""
+#. Install using pip: ``pip install django_tasker_account``
+#. Add to INSTALLED_APPS in your ``settings.py``: ``'django_tasker_account',``
+
 Configuring
 """"""""""""""""""
 
