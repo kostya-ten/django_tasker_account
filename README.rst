@@ -43,11 +43,23 @@ Requirements
 * Python 3.6+
 * A supported version of Django (currently 2.2)
 
+Getting It
+""""""""""""""""""
+
+You can get Django Tasker Account by using pip::
+
+    $ pip install django_tasker_account
+
+If you want to install it from source, grab the git repository from GitHub and run setup.py::
+
+    $ git clone git://github.com/kostya-ten/django_tasker_account.git
+    $ cd django_tasker_account
+    $ python setup.py install
+
+
 Installation
 """"""""""""""""""
-1. Install using pip ``pip install django_tasker_account``
-
-2. Add to INSTALLED_APPS
+To enable ``django_tasker_account`` in your project you need to add it to `INSTALLED_APPS` in your projects ``settings.py``
 
 .. code-block:: python
 
@@ -56,7 +68,6 @@ Installation
         'django_tasker_account',
         # ...
     )
-
 
 
 Configuring
