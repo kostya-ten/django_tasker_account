@@ -38,6 +38,12 @@ Features
       * Set 2FA
       * Upload avatar
 
+Requirements
+""""""""""""""""""
+Python 3.6+
+
+A supported version of Django (currently 2.2)
+
 Configuring
 """"""""""""""""""
 
