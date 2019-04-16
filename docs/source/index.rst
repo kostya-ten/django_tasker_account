@@ -82,7 +82,7 @@ To enable ``django_tasker_account`` in your project you need to add it to `INSTA
 Configuring
 """"""""""""""""""
 
-.. table:: Tasker Account recognises the following options.
+.. table:: Django Tasker Account recognises the following options.
 
     ==================== =========== =================================================================================================
     Option               Default     Description
