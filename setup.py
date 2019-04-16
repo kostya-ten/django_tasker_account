@@ -30,12 +30,14 @@ setup(
     author_email='kostya@yandex.ru',
     classifiers=[
         'Environment :: Web Environment',
+        'Natural Language :: English',
+        'Natural Language :: Russian',
         'Framework :: Django',
         'Framework :: Django :: 2.1',
         'Framework :: Django :: 2.2',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache License',
         'Operating System :: OS Independent',
+        'License :: OSI Approved :: Apache License'
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
