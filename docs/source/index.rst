@@ -1,7 +1,6 @@
 Welcome to Django Tasker Account's documentation!
 =================================================
 
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -9,6 +8,10 @@ Welcome to Django Tasker Account's documentation!
 
 .. image:: https://travis-ci.org/kostya-ten/django_tasker_account.svg?branch=master
     :target: https://travis-ci.org/kostya-ten/django_tasker_account
+
+.. image:: https://readthedocs.org/projects/django-tasker-account/badge/?version=latest
+    :target: https://django-tasker-account.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 Features
 """"""""""""""""""
