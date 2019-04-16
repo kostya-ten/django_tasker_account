@@ -40,9 +40,8 @@ Features
 
 Requirements
 """"""""""""""""""
-Python 3.6+
-
-A supported version of Django (currently 2.2)
+* Python 3.6+
+* A supported version of Django (currently 2.2)
 
 Configuring
 """"""""""""""""""
