@@ -16,6 +16,7 @@ setup(
         'tasker_account.migrations',
         'tasker_account.templates',
         'tasker_account.templates.tasker_account',
+        'tasker_account.management.commands',
     ],
     include_package_data=True,
     license='Apache License',
