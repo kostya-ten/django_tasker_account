@@ -1,6 +1,20 @@
-Django Tasker Account
-=====================
+Django Tasker Account - Extended user system for Django 2.x
+===========================================================
 
-Extended account management for Django 2.2
+Configuring
+""""""""""""""""""
 
+.. table:: Tasker Account recognises the following options.
 
+    ==================== =========== ==================================================================
+    Option               Default     Description
+    ==================== =========== ==================================================================
+    YANDEX_MAP_KEY       *Required*  The Geocoder can get a geo object's coordinates
+    YANDEX_LOCATOR_KEY   None        Locator locates the user
+    ==================== =========== ==================================================================
+
+Where to get the keys?
+""""""""""""""""""
+YANDEX_LOCATOR_KEY - https://tech.yandex.ru/locator/ (Russian)
+
+YANDEX_MAP_KEY - https://tech.yandex.com/maps/
