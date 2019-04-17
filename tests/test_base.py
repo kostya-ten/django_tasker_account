@@ -10,6 +10,8 @@ from django_tasker_account import validators, geobase, forms, views
 
 
 class Request:
+
+    @staticmethod
     def generate_request(self, request):
         # adding session
         middleware = SessionMiddleware()
@@ -140,7 +142,7 @@ class Validators(TestCase):
 class Geobase(TestCase):
 
     def test_geocoder(self):
-        result = geobase.geocoder(query='Москва')
+        result = geobase.detect_geo(query='Москва')
         self.assertEqual(result.country.en, 'Russia')
         self.assertEqual(result.province.en, 'Moscow')
         self.assertEqual(result.locality.en, 'Moscow')

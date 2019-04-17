@@ -85,19 +85,19 @@ def detect_ip(query: str) -> models.Geobase:
         longitude = '-0.12766'
 
     # Cache IP address
-    geobase = geocoder("{longitude},{latitude}".format(latitude=latitude, longitude=longitude))
+    geobase = detect_geo("{longitude},{latitude}".format(latitude=latitude, longitude=longitude))
     cache.set("{name}-{ip}".format(ip=str(ip), name=__name__), geobase.id, 60 * 60 * 24 * 30)
     return geobase
 
 
-def geocoder(query: str) -> models.Geobase:
+def detect_geo(query: str) -> models.Geobase:
     """
     Calculates geolocation an address object.
 
     :param query: Address or geographical the object
     :returns: Geobase
     """
-    hash = hashlib.sha1()
+    hash = hashlib.sha256()
     hash.update(query.encode('utf-8'))
 
     cache_geocoder = cache.get("{name}-{hash}".format(hash=hash.hexdigest(), name=__name__))
@@ -137,12 +137,12 @@ def geocoder(query: str) -> models.Geobase:
             'longitude': -0.127664,
         }
 
-    country, created = models.GeobaseCountry.objects.update_or_create(en=en.get('country'), ru=ru.get('country'))
-    province, created = models.GeobaseProvince.objects.update_or_create(en=en.get('province'), ru=ru.get('province'))
-    locality, created = models.GeobaseLocality.objects.update_or_create(en=en.get('locality'), ru=ru.get('locality'))
-    timezone, created = models.GeobaseTimezone.objects.update_or_create(name=en.get('timezone'))
+    country, country_created = models.GeobaseCountry.objects.update_or_create(en=en.get('country'), ru=ru.get('country'))
+    province, province_created = models.GeobaseProvince.objects.update_or_create(en=en.get('province'), ru=ru.get('province'))
+    locality, locality_created = models.GeobaseLocality.objects.update_or_create(en=en.get('locality'), ru=ru.get('locality'))
+    timezone, timezone_created = models.GeobaseTimezone.objects.update_or_create(name=en.get('timezone'))
 
-    geobase, created = models.Geobase.objects.update_or_create(
+    geobase, geobase_created = models.Geobase.objects.update_or_create(
         country=country,
         province=province,
         locality=locality,
