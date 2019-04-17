@@ -144,14 +144,14 @@ def detect_geo(query: str) -> models.Geobase:
     if created:
         logger.debug("created new object {en}, {ru}".format(en=en.get('country'), ru=ru.get('country')))
 
-    province, province_created = models.GeobaseProvince.objects.update_or_create(
+    province, created = models.GeobaseProvince.objects.update_or_create(
         en=en.get('province'),
         ru=ru.get('province')
     )
     if created:
         logger.debug("created new object {en}, {ru}".format(en=en.get('province'), ru=ru.get('province')))
 
-    locality, locality_created = models.GeobaseLocality.objects.update_or_create(
+    locality, created = models.GeobaseLocality.objects.update_or_create(
         en=en.get('locality'),
         ru=ru.get('locality')
     )
