@@ -11,7 +11,7 @@ from django_tasker_account import validators, geobase, forms, views
 
 class Request:
 
-    @staticmethod
+    @classmethod
     def generate_request(self, request):
         # adding session
         middleware = SessionMiddleware()

@@ -142,25 +142,25 @@ def detect_geo(query: str) -> models.Geobase:
         ru=ru.get('country')
     )
     if created:
-        logger.debug("created new object {en}, {ru}".format(en=en.get('country'), ru=ru.get('country')))
+        logger.debug("created new country object {en}, {ru}".format(en=en.get('country'), ru=ru.get('country')))
 
     province, created = models.GeobaseProvince.objects.update_or_create(
         en=en.get('province'),
         ru=ru.get('province')
     )
     if created:
-        logger.debug("created new object {en}, {ru}".format(en=en.get('province'), ru=ru.get('province')))
+        logger.debug("created new province object {en}, {ru}".format(en=en.get('province'), ru=ru.get('province')))
 
     locality, created = models.GeobaseLocality.objects.update_or_create(
         en=en.get('locality'),
         ru=ru.get('locality')
     )
     if created:
-        logger.debug("created new object {en}, {ru}".format(en=en.get('locality'), ru=ru.get('locality')))
+        logger.debug("created new locality object {en}, {ru}".format(en=en.get('locality'), ru=ru.get('locality')))
 
     timezone, timezone_created = models.GeobaseTimezone.objects.update_or_create(name=en.get('timezone'))
     if created:
-        logger.debug("created new object {name}".format(name=en.get('timezone')))
+        logger.debug("created new timezone object {name}".format(name=en.get('timezone')))
 
     geobase, created = models.Geobase.objects.update_or_create(
         country=country,
@@ -169,7 +169,7 @@ def detect_geo(query: str) -> models.Geobase:
         defaults={'timezone': timezone, 'longitude': en.get('longitude'), 'latitude': en.get('latitude')}
     )
     if created:
-        logger.debug("created new object {country}, {province}, {locality}".format(
+        logger.debug("created new geo object {country}, {province}, {locality}".format(
             country=country,
             province=province,
             locality=locality
