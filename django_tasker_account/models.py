@@ -136,6 +136,7 @@ class Profile(models.Model):
         verbose_name=_("Geobase")
     )
 
+    @staticmethod
     def path(instance, filename):
         extension = Path(filename).suffix
         return 'avatar/{0}/{1}/{2}'.format(urandom(1).hex(), urandom(1).hex(), urandom(16).hex() + extension)
@@ -144,7 +145,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return 'User profile {user}'.format(user=self.user)
-
 
 
 # Signals
