@@ -158,7 +158,7 @@ def detect_geo(query: str) -> models.Geobase:
     if created:
         logger.debug("created new locality object {en}, {ru}".format(en=en.get('locality'), ru=ru.get('locality')))
 
-    timezone, timezone_created = models.GeobaseTimezone.objects.update_or_create(name=en.get('timezone'))
+    timezone, created = models.GeobaseTimezone.objects.update_or_create(name=en.get('timezone'))
     if created:
         logger.debug("created new timezone object {name}".format(name=en.get('timezone')))
 

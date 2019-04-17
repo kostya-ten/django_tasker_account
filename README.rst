@@ -3,6 +3,14 @@ Django Tasker Account - Extended user system for Django 2.x
 
 .. image:: https://travis-ci.org/kostya-ten/django_tasker_account.svg?branch=master
     :target: https://travis-ci.org/kostya-ten/django_tasker_account
+
+.. image:: https://readthedocs.org/projects/django-tasker-account/badge/?version=latest
+    :target: https://django-tasker-account.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
+.. image:: https://api.codacy.com/project/badge/Grade/512d4c90fc16438a9063d08bdec48641
+    :target: https://www.codacy.com/app/kostya-ten/django_tasker_account?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=kostya-ten/django_tasker_account&amp;utm_campaign=Badge_Grade
+    :alt: Codacy Badge
     
     
 Features
@@ -70,22 +78,5 @@ To enable ``django_tasker_account`` in your project you need to add it to `INSTA
     )
 
 
-Configuring
-""""""""""""""""""
 
-.. table:: Tasker Account recognises the following options.
-
-    ==================== =========== =================================================================================================
-    Option               Default     Description
-    ==================== =========== =================================================================================================
-    YANDEX_MAP_KEY       *Required*  The Geocoder can get a geo object's coordinates
-    YANDEX_LOCATOR_KEY   None        Locator locates the user
-    GEOIP_PATH           *Required*  Geolocation with GeoIP2  `documentation  <https://docs.djangoproject.com/en/dev/ref/contrib/gis/geoip2/>`_
-    EMAIL_HOST           *Required*
-    ==================== =========== =================================================================================================
-
-Where to get the keys?
-""""""""""""""""""""""
-YANDEX_MAP_KEY - https://tech.yandex.com/maps/
-
-YANDEX_LOCATOR_KEY - https://tech.yandex.ru/locator/ (Russian)
+`Full documentation <https://django-tasker-account.readthedocs.io/>`_
