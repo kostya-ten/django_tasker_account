@@ -137,17 +137,44 @@ def detect_geo(query: str) -> models.Geobase:
             'longitude': -0.127664,
         }
 
-    country, country_created = models.GeobaseCountry.objects.update_or_create(en=en.get('country'), ru=ru.get('country'))
-    province, province_created = models.GeobaseProvince.objects.update_or_create(en=en.get('province'), ru=ru.get('province'))
-    locality, locality_created = models.GeobaseLocality.objects.update_or_create(en=en.get('locality'), ru=ru.get('locality'))
-    timezone, timezone_created = models.GeobaseTimezone.objects.update_or_create(name=en.get('timezone'))
+    country, created = models.GeobaseCountry.objects.update_or_create(
+        en=en.get('country'),
+        ru=ru.get('country')
+    )
+    if created:
+        logger.debug("created new object {en}, {ru}".format(en=en.get('country'), ru=ru.get('country')))
 
-    geobase, geobase_created = models.Geobase.objects.update_or_create(
+    province, province_created = models.GeobaseProvince.objects.update_or_create(
+        en=en.get('province'),
+        ru=ru.get('province')
+    )
+    if created:
+        logger.debug("created new object {en}, {ru}".format(en=en.get('province'), ru=ru.get('province')))
+
+    locality, locality_created = models.GeobaseLocality.objects.update_or_create(
+        en=en.get('locality'),
+        ru=ru.get('locality')
+    )
+    if created:
+        logger.debug("created new object {en}, {ru}".format(en=en.get('locality'), ru=ru.get('locality')))
+
+    timezone, timezone_created = models.GeobaseTimezone.objects.update_or_create(name=en.get('timezone'))
+    if created:
+        logger.debug("created new object {name}".format(name=en.get('timezone')))
+
+    geobase, created = models.Geobase.objects.update_or_create(
         country=country,
         province=province,
         locality=locality,
         defaults={'timezone': timezone, 'longitude': en.get('longitude'), 'latitude': en.get('latitude')}
     )
+    if created:
+        logger.debug("created new object {country}, {province}, {locality}".format(
+            country=country,
+            province=province,
+            locality=locality
+        ))
+
     cache.set("{name}-{hash}".format(hash=hash.hexdigest(), name=__name__), geobase.id, 60 * 60 * 24 * 30)
     return geobase
 
