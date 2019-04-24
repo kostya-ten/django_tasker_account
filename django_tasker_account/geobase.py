@@ -97,10 +97,10 @@ def detect_geo(query: str) -> models.Geobase:
     :param query: Address or geographical the object
     :returns: Geobase
     """
-    hash = hashlib.sha256()
-    hash.update(query.encode('utf-8'))
+    cache_key = hashlib.sha256()
+    cache_key.update(query.encode('utf-8'))
 
-    cache_geocoder = cache.get("{name}-{hash}".format(hash=hash.hexdigest(), name=__name__))
+    cache_geocoder = cache.get("{name}-{hash}".format(hash=cache_key.hexdigest(), name=__name__))
     if cache_geocoder:
         return get_object_or_404(models.Geobase, id=cache_geocoder)
 
@@ -175,7 +175,7 @@ def detect_geo(query: str) -> models.Geobase:
             locality=locality
         ))
 
-    cache.set("{name}-{hash}".format(hash=hash.hexdigest(), name=__name__), geobase.id, 60 * 60 * 24 * 30)
+    cache.set("{name}-{hash}".format(hash=cache_key.hexdigest(), name=__name__), geobase.id, 60 * 60 * 24 * 30)
     return geobase
 
 
