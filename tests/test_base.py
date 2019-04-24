@@ -286,3 +286,47 @@ class Form(TestCase, Request):
 
         form = forms.Signup(data={'username': 'username2', 'last_name': 'last_name'})
         self.assertTrue(form.has_error('first_name'))
+
+        form = forms.Signup(data={'username': 'username2', 'last_name': 'last_name', 'first_name': 'first_name'})
+        self.assertTrue(form.has_error('email'))
+
+        form = forms.Signup(data={
+            'username': 'username2',
+            'last_name': 'last_name',
+            'first_name': 'first_name',
+            'email': 'user@fdsfsdfadsasdfgsdbfgnxgnxfgnhxg.vom'
+        })
+        self.assertTrue(form.has_error('email'))
+
+        form = forms.Signup(data={
+            'username': 'username2',
+            'last_name': 'last_name',
+            'first_name': 'first_name',
+            'email': 'fdsfsdfadsasdfgsdbfgnxgnxfgnhxg.vom'
+        })
+        self.assertTrue(form.has_error('email'))
+
+        form = forms.Signup(data={
+            'username': 'username2',
+            'last_name': 'last_name',
+            'first_name': 'first_name',
+            'email': 'devnull@example.com'
+        })
+        self.assertTrue(form.has_error('email'))
+
+        form = forms.Signup(data={
+            'username': 'username2',
+            'last_name': 'last_name',
+            'first_name': 'first_name',
+            'email': 'гыук@example.com'
+        })
+        self.assertTrue(form.has_error('password1'))
+
+        form = forms.Signup(data={
+            'username': 'username2',
+            'last_name': 'last_name',
+            'first_name': 'first_name',
+            'email': 'user@example.com',
+            'password1': 'тест'
+        })
+        self.assertTrue(form.has_error('password1'))
