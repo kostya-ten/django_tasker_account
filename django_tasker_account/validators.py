@@ -80,7 +80,11 @@ def email(email: str) -> str:
 
     user = email.rsplit('@', 1)[0]
     domain = email.rsplit('@', 1)[-1]
-    if domain == 'ya.ru' or domain == 'yandex.by' or domain == 'yandex.com' or domain == 'yandex.kz' or domain == 'yandex.ua':
+    if domain == 'ya.ru'\
+            or domain == 'yandex.by'\
+            or domain == 'yandex.com'\
+            or domain == 'yandex.kz'\
+            or domain == 'yandex.ua':
         email = user+'@yandex.ru'
 
     try:
@@ -103,7 +107,11 @@ def email_dublicate(email: str) -> str:
 
     user = email.rsplit('@', 1)[0]
     domain = email.rsplit('@', 1)[-1]
-    if domain == 'ya.ru' or domain == 'yandex.by' or domain == 'yandex.com' or domain == 'yandex.kz' or domain == 'yandex.ua':
+    if domain == 'ya.ru'\
+            or domain == 'yandex.by'\
+            or domain == 'yandex.com'\
+            or domain == 'yandex.kz'\
+            or domain == 'yandex.ua':
         email = user+'@yandex.ru'
 
     if User.objects.filter(email=email).count():
