@@ -11,7 +11,11 @@ Django Tasker Account - Extended user system for Django 2.x
 .. image:: https://api.codacy.com/project/badge/Grade/512d4c90fc16438a9063d08bdec48641
     :target: https://www.codacy.com/app/kostya-ten/django_tasker_account?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=kostya-ten/django_tasker_account&amp;utm_campaign=Badge_Grade
     :alt: Codacy Badge
-    
+
+.. image:: https://requires.io/github/kostya-ten/django_tasker_account/requirements.svg?branch=master
+     :target: https://requires.io/github/kostya-ten/django_tasker_account/requirements/?branch=master
+     :alt: Requirements Status
+
     
 Features
 """"""""""""""""""
