@@ -330,3 +330,22 @@ class Form(TestCase, Request):
             'password1': 'тест'
         })
         self.assertTrue(form.has_error('password1'))
+
+        form = forms.Signup(data={
+            'username': 'username2',
+            'last_name': 'last_name',
+            'first_name': 'first_name',
+            'email': 'user@example.com',
+            'password1': 'a779894c60365e80efdfe0f7172ebe2063e99e09'
+        })
+        self.assertTrue(form.has_error('password2'))
+
+        form = forms.Signup(data={
+            'username': 'username2',
+            'last_name': 'last_name',
+            'first_name': 'first_name',
+            'email': 'user@example.com',
+            'password1': 'a779894c60365e80efdfe0f7172ebe2063e99e08',
+            'password2': 'a779894c60365e80efdfe0f7172ebe2063e99e08'
+        })
+        self.assertTrue(form.is_valid())

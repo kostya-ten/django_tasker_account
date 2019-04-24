@@ -116,6 +116,9 @@ YANDEX_LOCATOR_KEY - https://tech.yandex.ru/locator/ (Russian)
    geobase
    validators
 
+.. setting:: INSTALLED_APPS
+
+
 Indices and tables
 ==================
 

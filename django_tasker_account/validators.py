@@ -1,10 +1,6 @@
-import hashlib
-import urllib
-
 import phonenumbers
 import re
 
-import requests
 from phonenumbers import carrier
 from phonenumbers.phonenumberutil import number_type
 from email_validator import validate_email, EmailNotValidError
@@ -206,37 +202,3 @@ def password(password: str) -> str:
         raise ValidationError(err)
 
     return password
-
-
-class HaveIBeenPwnedValidator(object):
-    def get_hash(self, password):
-        return  hashlib.sha1(password.encode('UTF-8')).hexdigest().upper()
-
-    def get_api_url(self, document):
-        return urllib.parse.urljoin('https://api.pwnedpasswords.com/range/', document)
-
-    def partition_hash(self, hash):
-        return hash[:5], hash[5:]
-
-    def api_response_iter(self, content):
-        for entry in content.splitlines():
-            hash_suffix, *_ = entry.partition(b':')
-            yield hash_suffix.decode('UTF-8')
-
-    def validate(self, password, user=None):
-        hash = self.get_hash(password)
-        prefix, suffix = self.partition_hash(hash)
-        url = self.get_api_url(prefix)
-        response = requests.get(url, headers={'User-Agent': 'Django-HIBPwned'})
-
-        if (response.status_code == requests.codes.ok and
-           suffix in self.api_response_iter(response.content)):
-            raise ValidationError(
-                _("This password has previously appeared in a data breach. Please choose more secure alternative."),
-                code='password_pwned',
-            )
-
-    def get_help_text(self):
-        return _(
-            "Your password will be checked against existing data breaches."
-        )

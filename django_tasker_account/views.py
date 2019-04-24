@@ -1,10 +1,12 @@
 from django.conf import settings
+from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render, redirect
 
 from . import forms
 
 
-def login(request):
+def login(request: WSGIRequest):
+    """View for user authentication"""
     if request.method == 'GET':
         return render(request, "django_tasker_account/login.html", {'form': forms.Login()})
 
@@ -16,7 +18,8 @@ def login(request):
     return render(request, 'django_tasker_account/login.html', {'form': form}, status=400)
 
 
-def signup(request):
+def signup(request: WSGIRequest):
+    """View for user registration"""
     if request.method == 'GET':
         return render(request, "django_tasker_account/signup.html", {'form': forms.Signup()})
 
