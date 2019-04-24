@@ -93,14 +93,15 @@ Configuring
 
 .. table:: Django Tasker Account recognises the following options.
 
-    ==================== =========== =================================================================================================
-    Option               Default     Description
-    ==================== =========== =================================================================================================
-    YANDEX_MAP_KEY       *Required*  The Geocoder can get a geo object's coordinates
-    YANDEX_LOCATOR_KEY   None        Locator locates the user
-    GEOIP_PATH           *Required*  Geolocation with GeoIP2  `documentation  <https://docs.djangoproject.com/en/dev/ref/contrib/gis/geoip2/>`_
-    EMAIL_HOST           *Required*
-    ==================== =========== =================================================================================================
+    ======================== =========== =================================================================================================
+    Option                   Default     Description
+    ======================== =========== =================================================================================================
+    YANDEX_MAP_KEY           *Required*  The Geocoder can get a geo object's coordinates
+    YANDEX_LOCATOR_KEY       *Optional*  Locator locates the user
+    GEOIP_PATH               *Required*  Geolocation with GeoIP2  `documentation  <https://docs.djangoproject.com/en/dev/ref/contrib/gis/geoip2/>`_
+    EMAIL_HOST               *Required*
+    TASKER_HTML_INPUT_CLASS  *Optional*  Class html input form
+    ======================== =========== =================================================================================================
 
 Where to get the keys?
 """"""""""""""""""""""

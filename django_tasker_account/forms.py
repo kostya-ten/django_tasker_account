@@ -77,7 +77,7 @@ class Signup(UserCreationForm):
     username = forms.CharField(
         widget=TextInput(
             attrs={
-                'class': getattr(settings, 'HTML_INPUT_CLASS', 'form-control'),
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
                 'autocomplete': 'off',
                 'placeholder': _('Username')
             }
@@ -91,7 +91,7 @@ class Signup(UserCreationForm):
     last_name = forms.CharField(
         widget=TextInput(
             attrs={
-                'class': getattr(settings, 'HTML_INPUT_CLASS', 'form-control'),
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
                 'autocomplete': 'off',
                 'placeholder': _('Last name')
             }
@@ -101,7 +101,7 @@ class Signup(UserCreationForm):
     first_name = forms.CharField(
         widget=TextInput(
             attrs={
-                'class': getattr(settings, 'HTML_INPUT_CLASS', 'form-control'),
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
                 'autocomplete': 'off',
                 'placeholder': _('First name')
             }
@@ -111,7 +111,7 @@ class Signup(UserCreationForm):
     email = forms.EmailField(
         widget=TextInput(
             attrs={
-                'class': getattr(settings, 'HTML_INPUT_CLASS', 'form-control'),
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
                 'autocomplete': 'off',
                 'placeholder': _('Email')
             }
@@ -126,7 +126,7 @@ class Signup(UserCreationForm):
     password1 = forms.CharField(
         widget=PasswordInput(
             attrs={
-                'class': getattr(settings, 'HTML_INPUT_CLASS', 'form-control'),
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
                 'autocomplete': 'new-password',
                 'placeholder': _('Password')}
         ),
@@ -138,7 +138,7 @@ class Signup(UserCreationForm):
     password2 = forms.CharField(
         widget=PasswordInput(
             attrs={
-                'class': getattr(settings, 'HTML_INPUT_CLASS', 'form-control'),
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
                 'autocomplete': 'new-password',
                 'placeholder': _('Confirm password')
             }
