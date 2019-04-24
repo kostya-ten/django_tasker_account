@@ -51,6 +51,15 @@ setup(
         'Source': 'https://github.com/kostya-ten/django_tasker_account/',
         'Tracker': 'https://github.com/kostya-ten/django_tasker_account/issues',
     },
-    python_requires='>=3'
-
+    python_requires='>=3',
+    install_requires=[
+        'Django>=2.2',
+        'Pillow>=6.0.0',
+        'docutils >= 0.14',
+        'phonenumbers>=8.10.9',
+        'email-validator>=1.0.3',
+        'timezonefinder>=4.0.2',
+        'geoip2>=2.9.0',
+        'requests>=2.21.0',
+    ]
 )

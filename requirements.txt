@@ -1,5 +1,6 @@
 Django>=2.2
 Pillow>=6.0.0
+docutils >= 0.14
 phonenumbers>=8.10.9
 email-validator>=1.0.3
 timezonefinder>=4.0.2
