@@ -171,7 +171,7 @@ class Signup(UserCreationForm):
     def clean_password1(self):
         return self.cleaned_data.get('password1').strip()
 
-    def confirmation(self):
+    def confirmation(self) -> import_module(settings.SESSION_ENGINE).SessionStore:
         session_store = import_module(settings.SESSION_ENGINE).SessionStore
         session = session_store()
         session['data'] = self.cleaned_data
