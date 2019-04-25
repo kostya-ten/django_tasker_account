@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.utils.translation import gettext_lazy as _
 
 from . import forms
 
@@ -26,5 +28,7 @@ def signup(request: WSGIRequest):
     form = forms.Signup(data=request.POST, request=request)
     if form.is_valid():
         form.confirmation()
+        messages.success(request, _("A confirmation email has been sent to your email address"))
+        return redirect(settings.LOGIN_URL)
 
     return render(request, "django_tasker_account/signup.html", {'form': form}, status=400)

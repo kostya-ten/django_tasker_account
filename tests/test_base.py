@@ -368,7 +368,21 @@ class Form(TestCase, Request):
             ),
             message.body)
 
-        #print(message.subject)
-        #print(message.body)
+        request = factory.post('/accounts/signup/', data={
+            'username': 'username3',
+            'last_name': 'last_name',
+            'first_name': 'first_name',
+            'email': 'user2@example.com',
+            'password1': 'a779894c60365e80efdfe0f7172ebe2063e99e08',
+            'password2': 'a779894c60365e80efdfe0f7172ebe2063e99e08'
+        })
+        request = self.generate_request(request)
 
-
+        response = views.signup(request)
+        self.assertRedirects(
+            response,
+            '/accounts/login/',
+            status_code=302,
+            target_status_code=200,
+            fetch_redirect_response=False,
+        )
