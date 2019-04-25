@@ -173,10 +173,14 @@ class Signup(UserCreationForm):
 
     def confirmation(self):
         session_store = import_module(settings.SESSION_ENGINE).SessionStore
-
         session = session_store()
         session['data'] = self.cleaned_data
-        session['next'] = self.request.GET.get('next', '/')
+
+        if hasattr(self.request, 'GET'):
+            session['next'] = self.request.GET.get('next', '/')
+        else:
+            session['next'] = '/'
+
         session.create()
 
         subject = render_to_string('django_tasker_account/email/signup.subject.txt', {}).strip()
@@ -185,7 +189,11 @@ class Signup(UserCreationForm):
             'host': self.request.get_host()
         })
 
-        headers = {'Message-ID': make_msgid(domain=self.request.get_host())}
+        if hasattr(self.request, 'get_host'):
+            headers = {'Message-ID': make_msgid(domain=self.request.get_host())}
+        else:
+            headers = {'Message-ID': make_msgid(domain='localhost')}
+
         name_email = getattr(settings, 'EMAIL_NAME', settings.DEFAULT_FROM_EMAIL)
         msg = EmailMessage(
             subject=subject,

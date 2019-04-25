@@ -117,6 +117,7 @@ YANDEX_LOCATOR_KEY - https://tech.yandex.ru/locator/ (Russian)
    validators
    views
    models
+   forms
 
 Indices and tables
 ==================

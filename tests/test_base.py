@@ -5,6 +5,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import TestCase, override_settings, RequestFactory
 from django.core.exceptions import ValidationError
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.core import mail
 
 from django_tasker_account import validators, geobase, forms, views
 
@@ -340,6 +341,10 @@ class Form(TestCase, Request):
         })
         self.assertTrue(form.has_error('password2'))
 
+        factory = RequestFactory(HTTP_HOST='localhost')
+        request = factory.get('/')
+        request = self.generate_request(request)
+
         form = forms.Signup(data={
             'username': 'username2',
             'last_name': 'last_name',
@@ -347,5 +352,23 @@ class Form(TestCase, Request):
             'email': 'user@example.com',
             'password1': 'a779894c60365e80efdfe0f7172ebe2063e99e08',
             'password2': 'a779894c60365e80efdfe0f7172ebe2063e99e08'
-        })
+        }, request=request)
         self.assertTrue(form.is_valid())
+
+        session = form.confirmation()
+        self.assertEqual(len(mail.outbox), 1)
+
+        message = mail.outbox.pop()
+        self.assertEqual(message.subject, 'Please confirm email address')
+        self.assertEqual(message.to.pop(), 'user@example.com')
+        self.assertInHTML(
+            '<a href="https://localhost/accounts/confirm/email/{session_key}/">'.format(
+                session_key=session.session_key) + 'https://localhost/accounts/confirm/email/{session_key}/</a>'.format(
+                session_key=session.session_key
+            ),
+            message.body)
+
+        #print(message.subject)
+        #print(message.body)
+
+

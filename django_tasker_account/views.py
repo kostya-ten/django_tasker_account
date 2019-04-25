@@ -27,4 +27,4 @@ def signup(request: WSGIRequest):
     if form.is_valid():
         form.confirmation()
 
-    return render(request, "django_tasker_account/signup.html", {'form': form})
+    return render(request, "django_tasker_account/signup.html", {'form': form}, status=400)
