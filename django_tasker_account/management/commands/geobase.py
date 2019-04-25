@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from tasker_account import geobase
+from django_tasker_account import geobase
 from ipaddress import ip_address
 
 
