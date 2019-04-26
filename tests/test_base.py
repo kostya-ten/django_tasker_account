@@ -386,3 +386,4 @@ class Form(TestCase, Request):
             target_status_code=200,
             fetch_redirect_response=False,
         )
+

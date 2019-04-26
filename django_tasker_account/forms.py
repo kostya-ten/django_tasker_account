@@ -174,7 +174,9 @@ class Signup(UserCreationForm):
     def confirmation(self) -> import_module(settings.SESSION_ENGINE).SessionStore:
         session_store = import_module(settings.SESSION_ENGINE).SessionStore
         session = session_store()
+
         session['data'] = self.cleaned_data
+        session['module'] = __name__
 
         if hasattr(self.request, 'GET'):
             session['next'] = self.request.GET.get('next', '/')
