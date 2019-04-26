@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.utils.translation import gettext_lazy as _
+from django.contrib import messages, auth
+from django.utils.translation import gettext_lazy as _, get_supported_language_variant, get_language_from_request
 
-from . import forms
+from . import forms, geobase
 
 
 def login(request: WSGIRequest):
@@ -35,14 +35,19 @@ def signup(request: WSGIRequest):
 
 
 def confirm_email(request: WSGIRequest, data):
-    print(data)
 
     form = forms.Signup(data=data)
     if form.is_valid():
-        #user = form.save()
-        #data.get('session').delete()
-        #auth.login(request, user)
+        user = form.save()
+        data.get('session').delete()
+        auth.login(request, user)
+
+        # Set language profile
+        #user.profile.language = get_supported_language_variant(get_language_from_request(request))
+        user.profile.geobase = geobase.detect_ip(query=request)
+        user.profile.save()
 
         messages.success(request, _("Your address has been successfully verified"))
+        return redirect(data.get('next', '/'))
 
-    return render(request, "django_tasker_account/signup.html")
+    return redirect(settings.LOGIN_URL)

@@ -19,7 +19,7 @@ from . import models
 logger = logging.getLogger('django_tasker_account')
 
 
-def detect_ip(query: str) -> models.Geobase:
+def detect_ip(query: WSGIRequest) -> models.Geobase:
     """
     Calculates geolocation by IP address.
 
@@ -38,7 +38,7 @@ def detect_ip(query: str) -> models.Geobase:
     try:
         ip = ip_address(ip)
     except ValueError:
-        geobase = geocoder("{longitude},{latitude}".format(latitude="51.507351", longitude="-0.12766"))
+        geobase = _geocoder("{longitude},{latitude}".format(latitude="51.507351", longitude="-0.12766"))
         return geobase
 
     # Cache IP address
