@@ -34,8 +34,8 @@ def signup(request: WSGIRequest):
     return render(request, "django_tasker_account/signup.html", {'form': form}, status=400)
 
 
-def confirm_email(request: WSGIRequest, session):
-    # print(session)
+def confirm_email(request: WSGIRequest, data):
+    print(data)
 
     return render(request, "django_tasker_account/signup.html")
 

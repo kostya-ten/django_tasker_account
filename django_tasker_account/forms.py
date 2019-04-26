@@ -179,9 +179,9 @@ class Signup(UserCreationForm):
         session['module'] = __name__
 
         if hasattr(self.request, 'GET'):
-            session['next'] = self.request.GET.get('next', '/')
+            session['data']['next'] = self.request.GET.get('next', '/')
         else:
-            session['next'] = '/'
+            session['data']['next'] = '/'
 
         session.create()
 

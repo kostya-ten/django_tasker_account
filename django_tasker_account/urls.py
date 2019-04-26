@@ -6,5 +6,5 @@ register_converter(converters.ConfirmEmail, 'confirm_email')
 urlpatterns = [
     path('login/', views.login),
     path('signup/', views.signup),
-    path('confirm/email/<confirm_email:session>/', views.confirm_email),
+    path('confirm/email/<confirm_email:data>/', views.confirm_email),
 ]
