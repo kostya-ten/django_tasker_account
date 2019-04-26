@@ -6,7 +6,8 @@ from django.conf import settings
 class ConfirmEmail:
     regex = '[a-z0-9]+'
 
-    def to_python(self, session_key):
+    @staticmethod
+    def to_python(session_key):
         session_store = import_module(settings.SESSION_ENGINE).SessionStore
         session = session_store(session_key=session_key)
 
@@ -19,5 +20,6 @@ class ConfirmEmail:
         else:
             raise ValueError('Session not found')
 
-    def to_url(self, value):
+    @staticmethod
+    def to_url(value):
         return value

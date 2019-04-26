@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render, redirect
 from django.contrib import messages, auth
-from django.utils.translation import gettext_lazy as _, get_supported_language_variant, get_language_from_request
+from django.utils.translation import gettext_lazy as _
 
 from . import forms, geobase
 
