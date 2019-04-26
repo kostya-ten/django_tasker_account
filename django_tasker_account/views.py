@@ -37,5 +37,12 @@ def signup(request: WSGIRequest):
 def confirm_email(request: WSGIRequest, data):
     print(data)
 
-    return render(request, "django_tasker_account/signup.html")
+    form = forms.Signup(data=data)
+    if form.is_valid():
+        #user = form.save()
+        #data.get('session').delete()
+        #auth.login(request, user)
 
+        messages.success(request, _("Your address has been successfully verified"))
+
+    return render(request, "django_tasker_account/signup.html")
