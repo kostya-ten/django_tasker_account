@@ -120,6 +120,31 @@ def email_dublicate(email: str) -> str:
     return email
 
 
+def email_exists(email: str) -> str:
+    """
+    Checks the not exists an email
+
+    :param email: email address
+    :returns: email
+    :raise: ValidationError If the email address is not exists
+    """
+    email = email.lower().strip()
+
+    user = email.rsplit('@', 1)[0]
+    domain = email.rsplit('@', 1)[-1]
+    if domain == 'ya.ru'\
+            or domain == 'yandex.by'\
+            or domain == 'yandex.com'\
+            or domain == 'yandex.kz'\
+            or domain == 'yandex.ua':
+        email = user+'@yandex.ru'
+
+    if not User.objects.filter(email=email).exists():
+        raise ValidationError(_("User with this email is not exists"))
+
+    return email
+
+
 def email_blacklist(email: str) -> str:
     """
     Checks the blacklist db an email

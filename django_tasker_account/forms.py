@@ -5,11 +5,12 @@ from importlib import import_module
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordResetForm
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.forms import TextInput, PasswordInput
 from django.contrib import auth
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
@@ -216,3 +217,58 @@ class Signup(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'last_name', 'first_name', 'email', 'password1', 'password2')
+
+
+class ForgotPassword(PasswordResetForm):
+    email = forms.EmailField(
+        widget=TextInput(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+                'placeholder': _('Email')
+            }),
+        validators=[
+            validators.email,
+            validators.email_exists,
+        ]
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
+    def send_mail(self) -> import_module(settings.SESSION_ENGINE).SessionStore:
+        session_store = import_module(settings.SESSION_ENGINE).SessionStore
+
+        user = get_object_or_404(User, email=self.cleaned_data.get('email'))
+
+        session = session_store()
+        session['user_id'] = user.id
+        session['next'] = self.request.GET.get('next')
+        session['module'] = __name__
+        session.create()
+
+    #     subject = render_to_string('accounts/email/forgot_password.subject.txt', {}).strip()
+    #     body = render_to_string('accounts/email/forgot_password.body.html', {
+    #         'session_key': session.session_key,
+    #         'host': self.request.get_host()
+    #     })
+    #
+    #     headers = {'Message-ID': make_msgid(domain=self.request.get_host())}
+    #     msg = EmailMessage(
+    #         subject=subject,
+    #         body=body,
+    #         from_email=formataddr((settings.EMAIL_NAME, settings.DEFAULT_FROM_EMAIL)),
+    #         to=[self.cleaned_data.get('email')],
+    #         headers=headers
+    #     )
+    #     msg.content_subtype = "html"
+    #     msg.send()
+    #     return session
+    #
+    # def user(self):
+    #     return User.objects.filter(email=self.cleaned_data.get('email'))
+    #
+    # def clean_email(self):
+    #     email = self.cleaned_data.get('email')
+    #     email = email.lower().strip()
+    #     return email

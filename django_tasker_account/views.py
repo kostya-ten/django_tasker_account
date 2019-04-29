@@ -51,3 +51,14 @@ def confirm_email(request: WSGIRequest, data):
         return redirect(data.get('next', '/'))
 
     return redirect(settings.LOGIN_URL)
+
+
+def forgot_password(request: WSGIRequest):
+    if request.method == 'GET':
+        return render(request, "django_tasker_account/forgot_password.html", {'form': forms.ForgotPassword()})
+
+    form = forms.ForgotPassword(data=request.POST, request=request)
+    if form.is_valid():
+        pass
+
+    return render(request, "django_tasker_account/forgot_password.html", {'form': form})
