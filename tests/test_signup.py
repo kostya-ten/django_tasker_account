@@ -26,10 +26,11 @@ class Request:
     ALLOWED_HOSTS=['localhost'],
     CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
 )
-class Form(TestCase, Request):
-    def test_signup(self):
+class Signup(TestCase, Request):
+    def setUp(self) -> None:
         User.objects.create_user(username='username', password='Qazwsx123', email='devnull@example.com')
 
+    def test_forms(self):
         # Correct data
         form = forms.Signup(data={
             'username': 'username2',
@@ -140,6 +141,8 @@ class Form(TestCase, Request):
             ),
             message.body)
 
+    def test_views(self):
+        factory = RequestFactory(HTTP_HOST='localhost')
         request = factory.post('/accounts/signup/', data={
             'username': 'username3',
             'last_name': 'last_name',
@@ -158,3 +161,8 @@ class Form(TestCase, Request):
             target_status_code=200,
             fetch_redirect_response=False,
         )
+        self.assertEqual(len(mail.outbox), 1)
+
+        message = mail.outbox.pop()
+        self.assertEqual(message.subject, 'Please confirm email address')
+        self.assertEqual(message.to.pop(), 'user2@example.com')
