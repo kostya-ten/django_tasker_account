@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import TestCase, override_settings, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.core import mail
 
 from django_tasker_account import forms, views
 
@@ -63,4 +62,12 @@ class Signup(TestCase, Request):
             target_status_code=200,
             fetch_redirect_response=False,
         )
+
+        user = User.objects.get(username='username2')
+        self.assertEqual(user.username, 'username2')
+        self.assertEqual(user.last_name, 'last_name')
+        self.assertEqual(user.first_name, 'first_name')
+        self.assertEqual(user.email, 'user@example.com')
+        self.assertEqual(user.profile.language, 'en')
+
 
