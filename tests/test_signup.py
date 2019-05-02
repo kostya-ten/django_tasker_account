@@ -28,7 +28,8 @@ class Request:
 )
 class Signup(TestCase, Request):
     def setUp(self) -> None:
-        User.objects.create_user(username='username', password='Qazwsx123', email='devnull@example.com')
+        psw = 'Qazwsx123'
+        User.objects.create_user(username='username', password=psw, email='devnull@example.com')
 
     def test_forms(self):
         # Correct data

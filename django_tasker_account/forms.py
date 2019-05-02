@@ -247,7 +247,7 @@ class ForgotPassword(PasswordResetForm):
 
         return email
 
-    def send_mail(self) -> import_module(settings.SESSION_ENGINE).SessionStore:
+    def sendmail(self) -> import_module(settings.SESSION_ENGINE).SessionStore:
         session_store = import_module(settings.SESSION_ENGINE).SessionStore
 
         user = get_object_or_404(User, email=self.cleaned_data.get('email'))
