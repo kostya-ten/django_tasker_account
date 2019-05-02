@@ -47,3 +47,5 @@ class ForgotPassword(TestCase, Request):
         self.assertEqual(session_data.get('module'), 'django_tasker_account.forms')
         self.assertRegex(str(session_data.get('user_id')), '^[0-9]+$')
         self.assertEqual(session_data.get('next'), '/')
+        self.assertRegex(session.session_key, '^[0-9a-z]+$')
+

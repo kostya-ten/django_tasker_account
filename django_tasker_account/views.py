@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages, auth
 from django.utils.translation import gettext_lazy as _
 
-from . import forms, geobase
+from . import forms, geobase, converters
 
 
 def login(request: WSGIRequest):
@@ -34,7 +34,7 @@ def signup(request: WSGIRequest):
     return render(request, "django_tasker_account/signup.html", {'form': form}, status=400)
 
 
-def confirm_email(request: WSGIRequest, data):
+def confirm_email(request: WSGIRequest, data: dict):
 
     form = forms.Signup(data=data)
     if form.is_valid():
@@ -64,3 +64,19 @@ def forgot_password(request: WSGIRequest):
         return redirect(settings.LOGIN_URL)
 
     return render(request, "django_tasker_account/forgot_password.html", {'form': form})
+
+
+def change_password(request: WSGIRequest, data: converters.ChangePassword):
+    if request.method == 'GET':
+        form = forms.ChangePassword(user=data.user_id)
+        return render(request, "django_tasker_account/change_password.html", {'form': form})
+
+    form = forms.ChangePassword(data=request.POST, user=data.user_id)
+    if form.is_valid():
+        form.save()
+        messages.success(request, _("Password successfully changed"))
+        data.session.delete()
+        return redirect(data.next)
+
+    return render(request, "django_tasker_account/change_password.html", {'form': form})
+
