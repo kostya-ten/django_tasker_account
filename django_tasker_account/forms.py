@@ -211,9 +211,6 @@ class Signup(UserCreationForm):
         logger.debug("Confirmation code: {session}".format(session=session.session_key))
         return session
 
-    #def save(self):
-    #    return super().save(commit=True)
-
     class Meta:
         model = User
         fields = ('username', 'last_name', 'first_name', 'email', 'password1', 'password2')
@@ -235,6 +232,20 @@ class ForgotPassword(PasswordResetForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email').lower().strip()
+
+        user = email.rsplit('@', 1)[0]
+        domain = email.rsplit('@', 1)[-1]
+        if domain == 'ya.ru'\
+                or domain == 'yandex.by'\
+                or domain == 'yandex.com'\
+                or domain == 'yandex.kz'\
+                or domain == 'yandex.ua':
+            email = user+'@yandex.ru'
+
+        return email
 
     def send_mail(self) -> import_module(settings.SESSION_ENGINE).SessionStore:
         session_store = import_module(settings.SESSION_ENGINE).SessionStore
