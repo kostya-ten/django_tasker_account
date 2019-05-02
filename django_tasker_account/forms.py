@@ -186,16 +186,16 @@ class Signup(UserCreationForm):
 
         session.create()
 
+        if hasattr(self.request, 'get_host'):
+            host = self.request.get_host()
+        else:
+            host = 'localhost'
+
         subject = render_to_string('django_tasker_account/email/signup.subject.txt', {}).strip()
         body = render_to_string('django_tasker_account/email/signup.body.html', {
             'session_key': session.session_key,
-            'host': self.request.get_host()
+            'host': host
         })
-
-        if hasattr(self.request, 'get_host'):
-            headers = {'Message-ID': make_msgid(domain=self.request.get_host())}
-        else:
-            headers = {'Message-ID': make_msgid(domain='localhost')}
 
         name_email = getattr(settings, 'EMAIL_NAME', settings.DEFAULT_FROM_EMAIL)
         msg = EmailMessage(
@@ -203,7 +203,7 @@ class Signup(UserCreationForm):
             body=body,
             from_email=formataddr((name_email, settings.DEFAULT_FROM_EMAIL)),
             to=[self.cleaned_data.get('email')],
-            headers=headers,
+            headers={'Message-ID': make_msgid(domain=host)},
         )
         msg.content_subtype = "html"
         msg.send()
@@ -254,28 +254,39 @@ class ForgotPassword(PasswordResetForm):
 
         session = session_store()
         session['user_id'] = user.id
-        session['next'] = self.request.GET.get('next')
         session['module'] = __name__
+
+        if hasattr(self.request, 'GET'):
+            session['data']['next'] = self.request.GET.get('next', '/')
+        else:
+            session['data']['next'] = '/'
+
         session.create()
 
-    #     subject = render_to_string('accounts/email/forgot_password.subject.txt', {}).strip()
-    #     body = render_to_string('accounts/email/forgot_password.body.html', {
-    #         'session_key': session.session_key,
-    #         'host': self.request.get_host()
-    #     })
-    #
-    #     headers = {'Message-ID': make_msgid(domain=self.request.get_host())}
-    #     msg = EmailMessage(
-    #         subject=subject,
-    #         body=body,
-    #         from_email=formataddr((settings.EMAIL_NAME, settings.DEFAULT_FROM_EMAIL)),
-    #         to=[self.cleaned_data.get('email')],
-    #         headers=headers
-    #     )
-    #     msg.content_subtype = "html"
-    #     msg.send()
-    #     return session
-    #
+        if hasattr(self.request, 'get_host'):
+            host = self.request.get_host()
+        else:
+            host = 'localhost'
+
+        subject = render_to_string('django_tasker_account/email/forgot_password.subject.txt', {}).strip()
+        body = render_to_string('django_tasker_account/email/forgot_password.body.html', {
+            'session_key': session.session_key,
+            'host': host
+        })
+
+        name_email = getattr(settings, 'EMAIL_NAME', settings.DEFAULT_FROM_EMAIL)
+        msg = EmailMessage(
+            subject=subject,
+            body=body,
+            from_email=formataddr((name_email, settings.DEFAULT_FROM_EMAIL)),
+            to=[self.cleaned_data.get('email')],
+            headers={'Message-ID': make_msgid(domain=host)},
+        )
+        msg.content_subtype = "html"
+        msg.send()
+        return session
+
+
     # def user(self):
     #     return User.objects.filter(email=self.cleaned_data.get('email'))
     #

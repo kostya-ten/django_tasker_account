@@ -59,6 +59,6 @@ def forgot_password(request: WSGIRequest):
 
     form = forms.ForgotPassword(data=request.POST, request=request)
     if form.is_valid():
-        form.send_mail()
+        form.sendmail()
 
     return render(request, "django_tasker_account/forgot_password.html", {'form': form})
