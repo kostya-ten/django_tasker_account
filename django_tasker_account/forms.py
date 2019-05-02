@@ -5,7 +5,7 @@ from importlib import import_module
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordResetForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.forms import TextInput, PasswordInput
@@ -288,3 +288,25 @@ class ForgotPassword(PasswordResetForm):
 
     def user(self):
         return get_object_or_404(User, email=self.cleaned_data.get('email'))
+
+
+class ChangePassword(SetPasswordForm):
+    new_password1 = forms.CharField(
+        widget=PasswordInput(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+                'autocomplete': 'off',
+                'placeholder': _('Password')
+            }
+        ),
+    )
+
+    new_password2 = forms.CharField(
+        widget=PasswordInput(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+                'autocomplete': 'off',
+                'placeholder': _('Confirm password')
+            }
+        ),
+    )
