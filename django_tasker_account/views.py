@@ -60,5 +60,7 @@ def forgot_password(request: WSGIRequest):
     form = forms.ForgotPassword(data=request.POST, request=request)
     if form.is_valid():
         form.sendmail()
+        messages.success(request, _("You have been sent a link to change your password"))
+        return redirect(settings.LOGIN_URL)
 
     return render(request, "django_tasker_account/forgot_password.html", {'form': form})

@@ -257,9 +257,9 @@ class ForgotPassword(PasswordResetForm):
         session['module'] = __name__
 
         if hasattr(self.request, 'GET'):
-            session['data']['next'] = self.request.GET.get('next', '/')
+            session['next'] = self.request.GET.get('next', '/')
         else:
-            session['data']['next'] = '/'
+            session['next'] = '/'
 
         session.create()
 
@@ -287,4 +287,4 @@ class ForgotPassword(PasswordResetForm):
         return session
 
     def user(self):
-        return User.objects.filter(email=self.cleaned_data.get('email'))
+        return get_object_or_404(User, email=self.cleaned_data.get('email'))
