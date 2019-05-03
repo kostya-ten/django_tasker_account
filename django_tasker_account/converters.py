@@ -1,6 +1,8 @@
 from importlib import import_module
 
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 
 
 class ConfirmEmail:
@@ -49,7 +51,9 @@ class ChangePassword:
 
     def __init__(self):
         self.user_id = None
+        self.user = None
         self.session = None
+        self.module = None
         self.next = '/'
 
     def to_python(self, session_key):
@@ -61,8 +65,10 @@ class ChangePassword:
 
         if session.get('module') == 'django_tasker_account.forms':
             self.user_id = session.get('user_id')
+            self.user = get_object_or_404(User, id=session.get('user_id'))
             self.next = session.get('next')
             self.session = session
+            self.module = session.get('module')
             return self
         else:
             raise ValueError('Session not found')
