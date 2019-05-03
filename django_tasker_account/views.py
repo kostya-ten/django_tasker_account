@@ -72,7 +72,7 @@ def forgot_password(request: WSGIRequest):
         messages.success(request, _("You have been sent a link to change your password"))
         return redirect(settings.LOGIN_URL)
 
-    return render(request, "django_tasker_account/forgot_password.html", {'form': form})
+    return render(request, "django_tasker_account/forgot_password.html", {'form': form}, status=400)
 
 
 def change_password(request: WSGIRequest, data: converters.ChangePassword):
@@ -87,5 +87,5 @@ def change_password(request: WSGIRequest, data: converters.ChangePassword):
         data.session.delete()
         return redirect(data.next)
 
-    return render(request, "django_tasker_account/change_password.html", {'form': form})
+    return render(request, "django_tasker_account/change_password.html", {'form': form}, status=400)
 
