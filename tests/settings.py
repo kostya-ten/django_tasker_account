@@ -48,7 +48,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_tasker_account.middleware.BlockIP',
+    'django_tasker_account.middleware.Language',
+    'django_tasker_account.middleware.Timezone',
+
 ]
 
 ROOT_URLCONF = 'tests.urls'

@@ -6,3 +6,5 @@ email-validator>=1.0.3
 timezonefinder>=4.0.2
 geoip2>=2.9.0
 requests>=2.21.0
+pytz>=2018.9
+

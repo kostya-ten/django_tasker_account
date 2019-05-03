@@ -1,18 +1,32 @@
+import pytz
+from django.utils import timezone, translation
 
 
-class BlockIP:
+# Change language
+class Language:
     def __init__(self, get_response):
         self.get_response = get_response
-        # One-time configuration and initialization.
 
     def __call__(self, request):
-        # Code to be executed for each request before
-        # the view (and later middleware) are called.
-        #print(request)
+        if request.user.is_authenticated:
+            if request.user.profile.language:
+                translation.activate(request.user.profile.language)
 
         response = self.get_response(request)
+        return response
 
-        # Code to be executed for each request/response after
-        # the view is called.
 
+# Change timezone
+class Timezone:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.user.is_authenticated:
+            if request.user.profile.geobase and request.user.profile.geobase.timezone.name:
+                timezone.activate(pytz.timezone(request.user.profile.geobase.timezone.name))
+            else:
+                timezone.deactivate()
+
+        response = self.get_response(request)
         return response
