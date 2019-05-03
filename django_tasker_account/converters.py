@@ -16,6 +16,7 @@ class ConfirmEmail:
         self.email = None
         self.password1 = None
         self.password2 = None
+        self.module = None
 
     def to_python(self, session_key):
         session_store = import_module(settings.SESSION_ENGINE).SessionStore
@@ -33,6 +34,7 @@ class ConfirmEmail:
             self.password2 = session.get('password2')
             self.next = session.get('next')
             self.session = session
+            self.module = session.get('module')
             return self
         else:
             raise ValueError('Session not found')

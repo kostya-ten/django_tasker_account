@@ -36,16 +36,15 @@ def signup(request: WSGIRequest):
 
 def confirm_email(request: WSGIRequest, data: converters.ConfirmEmail):
 
-    data_form = {
+    form = forms.Signup(data={
         'username': data.username,
         'last_name': data.last_name,
         'first_name': data.first_name,
         'email': data.email,
         'password1': data.password1,
         'password2': data.password2,
-    }
+    })
 
-    form = forms.Signup(data=data_form)
     if form.is_valid():
         user = form.save()
         data.session.delete()
@@ -57,7 +56,7 @@ def confirm_email(request: WSGIRequest, data: converters.ConfirmEmail):
         user.profile.save()
 
         messages.success(request, _("Your address has been successfully verified"))
-        return redirect(data.get('next', '/'))
+        return redirect(data.next)
 
     return redirect(settings.LOGIN_URL)
 

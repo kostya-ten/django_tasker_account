@@ -7,7 +7,7 @@ from django.test import TestCase, override_settings, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core import mail
 
-from django_tasker_account import forms, views
+from django_tasker_account import forms, views, converters
 
 
 class Request:
@@ -187,16 +187,14 @@ class Signup(TestCase, Request):
         self.assertTrue(form.is_valid())
 
         session = form.confirmation()
-        session_store = import_module(settings.SESSION_ENGINE).SessionStore
-        session_data = session_store(session_key=session.session_key)
+        confirm_email = converters.ConfirmEmail().to_python(session_key=session.session_key)
 
-        self.assertEqual(session_data.get('module'), 'django_tasker_account.forms')
-        session_data['data']['session'] = session
+        self.assertEqual(confirm_email.module, 'django_tasker_account.forms')
 
         request = factory.get('/confirm/email/{session_key}/'.format(session_key=session.session_key))
         request = self.generate_request(request)
+        response = views.confirm_email(request, data=confirm_email)
 
-        response = views.confirm_email(request, data=session_data.get('data'))
         self.assertRedirects(
             response,
             '/',
