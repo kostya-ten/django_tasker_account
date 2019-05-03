@@ -79,11 +79,12 @@ def change_password(request: WSGIRequest, data: converters.ChangePassword):
         form = forms.ChangePassword(user=data.user_id)
         return render(request, "django_tasker_account/change_password.html", {'form': form})
 
-    form = forms.ChangePassword(data=request.POST, user=data.user)
+    form = forms.ChangePassword(data=request.POST, request=request, user=data.user)
     if form.is_valid():
         form.save()
-        messages.success(request, _("Password successfully changed"))
+        form.login()
         data.session.delete()
+        messages.success(request, _("Password successfully changed"))
         return redirect(data.next)
 
     return render(request, "django_tasker_account/change_password.html", {'form': form}, status=400)

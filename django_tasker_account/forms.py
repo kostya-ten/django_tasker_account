@@ -317,3 +317,15 @@ class ChangePassword(SetPasswordForm):
             }
         ),
     )
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
+    def login(self) -> User:
+        """
+        User authorization
+        """
+        auth.login(self.request, self.user)
+        logger.info("User authentication username:{username}".format(username=self.user.username))
+        return self.user
