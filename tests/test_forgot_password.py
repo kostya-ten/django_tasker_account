@@ -6,7 +6,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import TestCase, override_settings, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 
-from django_tasker_account import forms, views
+from django_tasker_account import forms
 
 
 class Request:
