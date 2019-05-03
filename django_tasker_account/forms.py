@@ -176,13 +176,18 @@ class Signup(UserCreationForm):
         session_store = import_module(settings.SESSION_ENGINE).SessionStore
         session = session_store()
 
-        session['data'] = self.cleaned_data
+        session['username'] = self.cleaned_data.get('username')
+        session['last_name'] = self.cleaned_data.get('last_name')
+        session['first_name'] = self.cleaned_data.get('first_name')
+        session['email'] = self.cleaned_data.get('email')
+        session['password1'] = self.cleaned_data.get('password1')
+        session['password2'] = self.cleaned_data.get('password2')
         session['module'] = __name__
 
         if hasattr(self.request, 'GET'):
-            session['data']['next'] = self.request.GET.get('next', '/')
+            session['next'] = self.request.GET.get('next', '/')
         else:
-            session['data']['next'] = '/'
+            session['next'] = '/'
 
         session.create()
 

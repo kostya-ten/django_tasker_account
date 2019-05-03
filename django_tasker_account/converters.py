@@ -6,8 +6,18 @@ from django.conf import settings
 class ConfirmEmail:
     regex = '[a-z0-9]+'
 
-    @staticmethod
-    def to_python(session_key):
+    def __init__(self):
+        self.session = None
+        self.next = '/'
+
+        self.username = None
+        self.last_name = None
+        self.first_name = None
+        self.email = None
+        self.password1 = None
+        self.password2 = None
+
+    def to_python(self, session_key):
         session_store = import_module(settings.SESSION_ENGINE).SessionStore
         session = session_store(session_key=session_key)
 
@@ -15,8 +25,15 @@ class ConfirmEmail:
             raise ValueError('Session not found')
 
         if session.get('module') == 'django_tasker_account.forms':
-            session['data']['session'] = session
-            return session.get('data')
+            self.username = session.get('username')
+            self.last_name = session.get('last_name')
+            self.first_name = session.get('first_name')
+            self.email = session.get('email')
+            self.password1 = session.get('password1')
+            self.password2 = session.get('password2')
+            self.next = session.get('next')
+            self.session = session
+            return self
         else:
             raise ValueError('Session not found')
 
@@ -42,8 +59,8 @@ class ChangePassword:
 
         if session.get('module') == 'django_tasker_account.forms':
             self.user_id = session.get('user_id')
-            self.session = session
             self.next = session.get('next')
+            self.session = session
             return self
         else:
             raise ValueError('Session not found')

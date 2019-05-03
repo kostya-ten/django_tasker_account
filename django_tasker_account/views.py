@@ -34,12 +34,21 @@ def signup(request: WSGIRequest):
     return render(request, "django_tasker_account/signup.html", {'form': form}, status=400)
 
 
-def confirm_email(request: WSGIRequest, data: dict):
+def confirm_email(request: WSGIRequest, data: converters.ConfirmEmail):
 
-    form = forms.Signup(data=data)
+    data_form = {
+        'username': data.username,
+        'last_name': data.last_name,
+        'first_name': data.first_name,
+        'email': data.email,
+        'password1': data.password1,
+        'password2': data.password2,
+    }
+
+    form = forms.Signup(data=data_form)
     if form.is_valid():
         user = form.save()
-        data.get('session').delete()
+        data.session.delete()
         auth.login(request, user)
 
         # Set language profile
