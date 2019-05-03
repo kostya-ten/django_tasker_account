@@ -2,9 +2,10 @@ from importlib import import_module
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core import mail
 from django.test import TestCase, override_settings, RequestFactory
 
-from django_tasker_account import forms
+from django_tasker_account import forms, views
 from . import test_base
 
 
@@ -16,7 +17,7 @@ class ForgotPassword(TestCase, test_base.Request):
     def setUp(self) -> None:
         User.objects.create_user(username='username', email='user@example.com')
 
-    def test_views(self):
+    def test_forms(self):
         factory = RequestFactory(HTTP_HOST='localhost')
         request = factory.get('/')
         request = self.generate_request(request)
@@ -32,4 +33,32 @@ class ForgotPassword(TestCase, test_base.Request):
         self.assertRegex(str(session_data.get('user_id')), '^[0-9]+$')
         self.assertEqual(session_data.get('next'), '/')
         self.assertRegex(session.session_key, '^[0-9a-z]+$')
+
+    def test_views(self):
+        factory = RequestFactory(HTTP_HOST='localhost')
+        request = factory.get('/accounts/forgot_password/')
+        request = self.generate_request(request)
+
+        response = views.forgot_password(request)
+        self.assertEqual(response.status_code, 200)
+
+        # Not found email
+        request = factory.post('/accounts/forgot_password/', {'email': 'notfound@example.com'})
+        request = self.generate_request(request)
+        response = views.forgot_password(request)
+        self.assertEqual(response.status_code, 400)
+
+        request = factory.post('/accounts/forgot_password/', {'email': 'user@example.com'})
+        request = self.generate_request(request)
+        response = views.forgot_password(request)
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox.pop()
+        self.assertEqual(message.subject, 'Password recovery')
+        self.assertEqual(message.to.pop(), 'user@example.com')
+
+        self.assertRegex(message.body, '/accounts/change/password/')
+
+
 

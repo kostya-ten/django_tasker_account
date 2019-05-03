@@ -38,7 +38,7 @@ class SessionAdmin(admin.ModelAdmin):
     list_display = ['session_key', '_session_data', 'expire_date']
     readonly_fields = ['_session_data']
     exclude = ['session_data']
-    date_hierarchy='expire_date'
+    date_hierarchy = 'expire_date'
 
 
 admin.site.register(Profile, ProfileAdmin)
