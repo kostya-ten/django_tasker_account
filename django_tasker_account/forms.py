@@ -175,6 +175,7 @@ class Signup(UserCreationForm):
     def confirmation(self) -> import_module(settings.SESSION_ENGINE).SessionStore:
         session_store = import_module(settings.SESSION_ENGINE).SessionStore
         session = session_store()
+        session.set_expiry(getattr(settings, 'TASKER_ACCOUNT_SESSION_SIGNUP', 60*60*24))
 
         session['username'] = self.cleaned_data.get('username')
         session['last_name'] = self.cleaned_data.get('last_name')
@@ -258,6 +259,7 @@ class ForgotPassword(PasswordResetForm):
         user = self.user()
 
         session = session_store()
+        session.set_expiry(getattr(settings, 'TASKER_ACCOUNT_SESSION_FORGOTPASSWORD', 60*60*24))
         session['user_id'] = user.id
         session['module'] = __name__
 
