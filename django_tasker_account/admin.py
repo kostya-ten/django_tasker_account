@@ -30,7 +30,8 @@ class GeobaseAdmin(admin.ModelAdmin):
 
 
 class SessionAdmin(admin.ModelAdmin):
-    def _session_data(self, obj):
+    @staticmethod
+    def _session_data(obj):
         json_string = json.dumps(obj.get_decoded())
         return json_string
 
