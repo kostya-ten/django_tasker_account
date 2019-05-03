@@ -2,9 +2,7 @@ from importlib import import_module
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import TestCase, override_settings, RequestFactory
-from django.contrib.sessions.middleware import SessionMiddleware
 
 from django_tasker_account import forms
 from . import test_base
