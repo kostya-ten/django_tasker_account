@@ -10,4 +10,7 @@ urlpatterns = [
     path('forgot_password/', views.forgot_password),
     path('confirm/email/<confirm_email:data>/', views.confirm_email),
     path('change/password/<change_password:data>/', views.change_password),
+    path('oauth/yandex/', views.oauth_yandex),
+    path('oauth/mailru/', views.oauth_mailru),
+    path('oauth/completion/', views.oauth_completion, name="oauth_completion"),
 ]

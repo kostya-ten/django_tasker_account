@@ -2,7 +2,7 @@ import json
 
 from django.contrib.sessions.models import Session
 from django.contrib import admin
-from .models import Profile, Geobase, GeobaseCountry, GeobaseProvince, GeobaseLocality, GeobaseTimezone
+from .models import Profile, Geobase, GeobaseCountry, GeobaseProvince, GeobaseLocality, GeobaseTimezone, Oauth
 
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -29,6 +29,10 @@ class GeobaseAdmin(admin.ModelAdmin):
     list_display = ('country', 'province', 'locality', 'timezone', 'latitude', 'longitude')
 
 
+class OAuthAdmin(admin.ModelAdmin):
+    list_display = ('user', 'oauth_id', 'server', 'access_token', 'refresh_token', 'expires_in')
+
+
 class SessionAdmin(admin.ModelAdmin):
     @staticmethod
     def _session_data(obj):
@@ -49,3 +53,4 @@ admin.site.register(GeobaseLocality, GeobaseLocalityAdmin)
 admin.site.register(GeobaseTimezone, GeobaseTimezoneAdmin)
 admin.site.register(Geobase, GeobaseAdmin)
 admin.site.register(Session, SessionAdmin)
+admin.site.register(Oauth, OAuthAdmin)

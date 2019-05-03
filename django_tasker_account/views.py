@@ -1,10 +1,21 @@
+import os
+
+import requests
+
+from pprint import pprint
+from urllib.parse import urlencode
+from datetime import datetime, timedelta, timezone
+
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render, redirect
 from django.contrib import messages, auth
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from email_validator import validate_email
 
-from . import forms, geobase, converters
+from . import forms, geobase, converters, views, models
 
 
 def login(request: WSGIRequest):
@@ -89,3 +100,207 @@ def change_password(request: WSGIRequest, data: converters.ChangePassword):
 
     return render(request, "django_tasker_account/change_password.html", {'form': form}, status=400)
 
+
+# http://127.0.0.1:8000/accounts/oauth/yandex/
+def oauth_yandex(request: WSGIRequest):
+    client_id = getattr(settings, 'OAUTH_YANDEX_CLIENT_ID', os.environ.get('OAUTH_YANDEX_CLIENT_ID'))
+    client_secret = getattr(settings, 'OAUTH_YANDEX_SECRET_KEY', os.environ.get('OAUTH_YANDEX_SECRET_KEY'))
+
+    if not client_id:
+        messages.error(request, _("Application OAuth Yandex is disabled"))
+        return redirect('/')
+
+    redirect_uri = "{shema}://{host}{path}".format(
+        shema=request.META.get('HTTP_X_FORWARDED_PROTO', request.scheme),
+        host=request.get_host(),
+        path=request.path,
+    )
+
+    if not request.GET.get('code'):
+        params = {
+            'client_id': client_id,
+            'redirect_uri': redirect_uri,
+            'response_type': 'code',
+            'state': request.GET.get('next', '/'),
+        }
+        return redirect('https://oauth.yandex.ru/authorize?' + urlencode(params))
+
+    data = {
+        'grant_type': 'authorization_code',
+        'code': request.GET.get('code'),
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+    }
+
+    response = requests.post('https://oauth.yandex.ru/token', data=data)
+    json = response.json()
+
+    response_info = requests.get(
+        url='https://login.yandex.ru/info',
+        params={'format': 'json'},
+        headers={'Authorization': 'OAuth ' + json.get('access_token')},
+    )
+
+    json_info = response_info.json()
+
+    request.session["oauth"] = {
+        'server': 2,
+        'access_token': json.get('access_token'),
+        'refresh_token': json.get('refresh_token'),
+        'token_type': json.get('token_type'),
+
+        'id': json_info.get('id'),
+        'birth_date': json_info.get('birthday'),
+        'last_name': json_info.get('last_name'),
+        'first_name': json_info.get('first_name'),
+    }
+
+    if json_info.get('sex') == 'male':
+        request.session["oauth"]["gender"] = 1
+    elif json_info.get('sex') == 'female':
+        request.session["oauth"]["gender"] = 2
+    else:
+        request.session["oauth"]["gender"] = None
+
+    if not json_info.get('is_avatar_empty'):
+        request.session["oauth"]["avatar"] = "https://avatars.yandex.net/get-yapic/{avatar_id}/islands-200".format(
+            avatar_id=json_info.get('default_avatar_id')
+        )
+    else:
+        request.session["oauth"]["avatar"] = None
+
+    # Verifying that the user is registered with yandex domains
+    email = json_info.get('default_email').strip().lower()
+    user = email.rsplit('@', 1)[0]
+    domain = email.rsplit('@', 1)[-1]
+    if domain == 'ya.ru' or \
+            domain == 'yandex.by' or \
+            domain == 'yandex.com' or \
+            domain == 'yandex.kz' or \
+            domain == 'yandex.ua':
+        email = '{user}@yandex.ru'.format(user=user)
+
+    if validate_email(email).get('domain') != 'yandex.ru':
+        messages.error(request, _('Allowed to use for authorization domain yandex.ru'))
+        return redirect(settings.LOGIN_URL)
+
+    request.session["oauth"]["email"] = email
+
+    # Check login
+    if not models.User.objects.filter(username=user).exists():
+        request.session["oauth"]["login"] = user
+    else:
+        request.session["oauth"]["login"] = "{user}#yandex".format(user=user)
+
+    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
+    request.session["oauth"]["expires_in"] = dt.isoformat()
+
+    return redirect(reverse(views.oauth_completion))
+
+
+# http://127.0.0.1:8000/accounts/oauth/mailru/
+def oauth_mailru(request: WSGIRequest):
+    client_id = getattr(settings, 'OAUTH_MAILRU_CLIENT_ID', os.environ.get('OAUTH_MAILRU_CLIENT_ID'))
+    client_secret = getattr(settings, 'OAUTH_MAILRU_SECRET_KEY', os.environ.get('OAUTH_MAILRU_SECRET_KEY'))
+
+    if not client_id:
+        messages.error(request, _("Application OAuth Mail.ru is disabled"))
+        return redirect('/')
+
+    redirect_uri = "{shema}://{host}{path}".format(
+        shema=request.META.get('HTTP_X_FORWARDED_PROTO', request.scheme),
+        host=request.get_host(),
+        path=request.path,
+    )
+
+    if not request.GET.get('code'):
+        params = {
+            'client_id': client_id,
+            'redirect_uri': redirect_uri,
+            'response_type': 'code',
+            'scope': 'userinfo',
+            'state': request.GET.get('next', '/'),
+        }
+        return redirect('https://oauth.mail.ru/login?' + urlencode(params))
+
+    data = {
+        'grant_type': 'authorization_code',
+        'code': request.GET.get('code'),
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+    }
+
+    response = requests.post('https://oauth.mail.ru/token', data=data)
+    json = response.json()
+    #json.get('access_token')
+    #json.get('expires_in')
+    #json.get('refresh_token')
+    print(json)
+
+
+def oauth_completion(request: WSGIRequest):
+    oauth = request.session.get('oauth')
+    if not oauth:
+        messages.error(request, _('Maybe your account has already been activated'))
+        return redirect(settings.LOGIN_URL)
+
+    # If the user is already registered through OAuth
+    result = models.Oauth.objects.filter(oauth_id=oauth.get('id'), server=oauth.get('server'))
+    if result.exists():
+        user = result.get(oauth_id=oauth.get('id'), server=oauth.get('server')).user
+        auth.login(request, user)
+
+        if oauth.get('gender') and not user.profile.gender:
+            user.profile.gender = oauth.get('gender')
+            user.profile.save()
+
+        if oauth.get('birth_date') and not user.profile.birth_date:
+            user.profile.birth_date = oauth.get('birth_date')
+            user.profile.save()
+
+        if oauth.get('avatar') and not user.profile.avatar:
+            response = requests.get(oauth.get('avatar'))
+            if response.status_code == 200:
+                user.profile.avatar.save('avatar.png', ContentFile(response.content))
+
+        del request.session['oauth']
+        return redirect(oauth.get('next', '/'))
+
+    # If the email user is the same as the account already registered
+    if oauth.get('email'):
+        user = models.User.objects.filter(email=oauth.get('email'))
+        if user.exists():
+
+            # Link with the model Oauth
+            oauth = models.Oauth.objects.create(
+                oauth_id=oauth.get('id'),
+                server=oauth.get('server'),
+                access_token=oauth.get('access_token'),
+                refresh_token=oauth.get('refresh_token'),
+                expires_in=oauth.get('expires_in'),
+                user=user.last(),
+            )
+            oauth.save()
+
+            # Authentication
+            auth.login(request, oauth.user)
+
+            if oauth.get('gender') and not user.profile.gender:
+                user.profile.gender = oauth.get('gender')
+                user.profile.save()
+
+            if oauth.get('birth_date') and not user.profile.birth_date:
+                user.profile.birth_date = oauth.get('birth_date')
+                user.profile.save()
+
+            if oauth.get('avatar') and not user.profile.avatar:
+                response = requests.get(oauth.get('avatar'))
+                if response.status_code == 200:
+                    user.profile.avatar.save('avatar.png', ContentFile(response.content))
+
+            del request.session['oauth']
+            return redirect(oauth.get('next', '/'))
+
+    pprint(oauth)

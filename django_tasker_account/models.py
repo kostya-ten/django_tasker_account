@@ -136,7 +136,6 @@ class Profile(models.Model):
         verbose_name=_("Geobase")
     )
 
-    @staticmethod
     def path(instance, filename):
         extension = Path(filename).suffix
         return 'avatar/{0}/{1}/{2}'.format(urandom(1).hex(), urandom(1).hex(), urandom(16).hex() + extension)
@@ -146,6 +145,31 @@ class Profile(models.Model):
     def __str__(self):
         return 'User profile {user}'.format(user=self.user)
 
+
+class Oauth(models.Model):
+    SERVER = (
+        (1, 'Google'),
+        (2, 'Yandex'),
+        (3, 'Mail.ru'),
+        (4, 'VK.com'),
+        (5, 'Facebook'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_("User"))
+    oauth_id = models.CharField(max_length=255, verbose_name=_("Oauth ID"))
+    server = models.IntegerField(choices=SERVER, verbose_name=_("Server"))
+
+    access_token = models.CharField(max_length=255, verbose_name=_("Access token"))
+    refresh_token = models.CharField(max_length=255, verbose_name=_("Refresh token"))
+    expires_in = models.DateTimeField(verbose_name=_("Expires date"))
+
+    class Meta:
+        unique_together = (('oauth_id', 'server'),)
+        verbose_name = _("OAuth")
+        verbose_name_plural = _("OAuth")
+
+    def __str__(self):
+        return '%s %s' % (self.server, self.user)
 
 # Signals
 @receiver(post_save, sender=User)
