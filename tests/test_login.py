@@ -1,31 +1,15 @@
 from django.contrib.auth.models import User
-from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import TestCase, override_settings, RequestFactory
-from django.contrib.sessions.middleware import SessionMiddleware
 
 from django_tasker_account import forms, views
-
-
-class Request:
-
-    @classmethod
-    def generate_request(self, request):
-        # adding session
-        middleware = SessionMiddleware()
-        middleware.process_request(request)
-        request.session.save()
-
-        # adding messages
-        messages = FallbackStorage(request)
-        setattr(request, '_messages', messages)
-        return request
+from . import test_base
 
 
 @override_settings(
     ALLOWED_HOSTS=['localhost'],
     CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
 )
-class Login(TestCase, Request):
+class Login(TestCase, test_base.Request):
     def setUp(self) -> None:
         User.objects.create_user(username='username', password='Qazwsx123', email='devnull@example.com')
 

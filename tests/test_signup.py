@@ -1,35 +1,16 @@
-from importlib import import_module
-
-from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import TestCase, override_settings, RequestFactory
-from django.contrib.sessions.middleware import SessionMiddleware
 from django.core import mail
 
 from django_tasker_account import forms, views, converters
-
-
-class Request:
-
-    @classmethod
-    def generate_request(self, request):
-        # adding session
-        middleware = SessionMiddleware()
-        middleware.process_request(request)
-        request.session.save()
-
-        # adding messages
-        messages = FallbackStorage(request)
-        setattr(request, '_messages', messages)
-        return request
+from . import test_base
 
 
 @override_settings(
     ALLOWED_HOSTS=['localhost'],
     CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
 )
-class Signup(TestCase, Request):
+class Signup(TestCase, test_base.Request):
     def setUp(self) -> None:
         psw = 'Qazwsx123'
         User.objects.create_user(username='username', password=psw, email='devnull@example.com')
