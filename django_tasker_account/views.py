@@ -1,3 +1,4 @@
+import logging
 import os
 
 import requests
@@ -7,6 +8,7 @@ from urllib.parse import urlencode
 from datetime import datetime, timedelta, timezone
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render, redirect
@@ -16,6 +18,8 @@ from django.utils.translation import gettext_lazy as _
 from email_validator import validate_email
 
 from . import forms, geobase, converters, views, models
+
+logger = logging.getLogger('tasker_account')
 
 
 def login(request: WSGIRequest):
@@ -101,12 +105,12 @@ def change_password(request: WSGIRequest, data: converters.ChangePassword):
     return render(request, "django_tasker_account/change_password.html", {'form': form}, status=400)
 
 
-# http://127.0.0.1:8000/accounts/oauth/yandex/
 def oauth_yandex(request: WSGIRequest):
     client_id = getattr(settings, 'OAUTH_YANDEX_CLIENT_ID', os.environ.get('OAUTH_YANDEX_CLIENT_ID'))
     client_secret = getattr(settings, 'OAUTH_YANDEX_SECRET_KEY', os.environ.get('OAUTH_YANDEX_SECRET_KEY'))
 
     if not client_id:
+        logger.error(_("Application OAuth Yandex is disabled"))
         messages.error(request, _("Application OAuth Yandex is disabled"))
         return redirect('/')
 
@@ -123,6 +127,10 @@ def oauth_yandex(request: WSGIRequest):
             'response_type': 'code',
             'state': request.GET.get('next', '/'),
         }
+
+        if settings.DEBUG:
+            params['force_confirm'] = 'yes'
+
         return redirect('https://oauth.yandex.ru/authorize?' + urlencode(params))
 
     data = {
@@ -188,10 +196,11 @@ def oauth_yandex(request: WSGIRequest):
     request.session["oauth"]["email"] = email
 
     # Check login
+    user = str(user).replace(".", "_")
     if not models.User.objects.filter(username=user).exists():
-        request.session["oauth"]["login"] = user
+        request.session["oauth"]["username"] = user
     else:
-        request.session["oauth"]["login"] = "{user}#yandex".format(user=user)
+        request.session["oauth"]["username"] = "{user}#yandex".format(user=user)
 
     dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
     request.session["oauth"]["expires_in"] = dt.isoformat()
@@ -199,13 +208,13 @@ def oauth_yandex(request: WSGIRequest):
     return redirect(reverse(views.oauth_completion))
 
 
-# http://127.0.0.1:8000/accounts/oauth/mailru/
-def oauth_mailru(request: WSGIRequest):
-    client_id = getattr(settings, 'OAUTH_MAILRU_CLIENT_ID', os.environ.get('OAUTH_MAILRU_CLIENT_ID'))
-    client_secret = getattr(settings, 'OAUTH_MAILRU_SECRET_KEY', os.environ.get('OAUTH_MAILRU_SECRET_KEY'))
+def oauth_google(request: WSGIRequest):
+    client_id = getattr(settings, 'OAUTH_GOOGLE_CLIENT_ID', os.environ.get('OAUTH_GOOGLE_CLIENT_ID'))
+    client_secret = getattr(settings, 'OAUTH_GOOGLE_SECRET_KEY', os.environ.get('OAUTH_GOOGLE_SECRET_KEY'))
 
     if not client_id:
-        messages.error(request, _("Application OAuth Mail.ru is disabled"))
+        logger.error(_("Application OAuth Google is disabled"))
+        messages.error(request, _("Application OAuth Google is disabled"))
         return redirect('/')
 
     redirect_uri = "{shema}://{host}{path}".format(
@@ -219,10 +228,12 @@ def oauth_mailru(request: WSGIRequest):
             'client_id': client_id,
             'redirect_uri': redirect_uri,
             'response_type': 'code',
-            'scope': 'userinfo',
             'state': request.GET.get('next', '/'),
+            'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
         }
-        return redirect('https://oauth.mail.ru/login?' + urlencode(params))
+
+        redirect_url = "https://accounts.google.com/o/oauth2/v2/auth?{param}".format(param=urlencode(params))
+        return redirect(redirect_url)
 
     data = {
         'grant_type': 'authorization_code',
@@ -232,16 +243,211 @@ def oauth_mailru(request: WSGIRequest):
         'redirect_uri': redirect_uri,
     }
 
-    response = requests.post('https://oauth.mail.ru/token', data=data)
+    response = requests.post('https://www.googleapis.com/oauth2/v4/token', data=data)
     json = response.json()
-    #json.get('access_token')
-    #json.get('expires_in')
-    #json.get('refresh_token')
-    print(json)
+
+    response_info = requests.get(
+        url='https://www.googleapis.com/oauth2/v1/userinfo',
+        params={'format': 'json'},
+        headers={'Authorization': 'OAuth ' + json.get('access_token')})
+
+    json_info = response_info.json()
+
+    request.session["oauth"] = {
+        'server': 1,
+        'access_token': json.get('access_token'),
+        'refresh_token': None,
+        'token_type': json.get('token_type'),
+
+        'id': json_info.get('id'),
+        'birth_date': None,
+        'avatar': json_info.get('picture'),
+        'last_name': json_info.get('family_name'),
+        'first_name': json_info.get('given_name'),
+    }
+
+    if json_info.get('verified_email'):
+        email = json_info.get('email').strip().lower()
+        user = email.rsplit('@', 1)[0]
+
+        if validate_email(email).get('domain') != 'gmail.com':
+            messages.error(request, _('Allowed to use for authorization domain gmail.com'))
+            return redirect(settings.LOGIN_URL)
+
+        request.session["oauth"]["email"] = email
+
+        # Check login
+        user = str(user).replace(".", "_")
+        if not models.User.objects.filter(username=user).exists():
+            request.session["oauth"]["username"] = user
+        else:
+            request.session["oauth"]["username"] = "{user}#google".format(user=user)
+
+    else:
+        request.session["oauth"]["email"] = None
+        request.session["oauth"]["username"] = "{username}#google".format(username=json_info.get('id'))
+
+    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
+    request.session["oauth"]["expires_in"] = dt.isoformat()
+
+    return redirect(reverse(views.oauth_completion))
+
+
+def oauth_vk(request: WSGIRequest):
+    client_id = getattr(settings, 'OAUTH_VK_CLIENT_ID', os.environ.get('OAUTH_VK_CLIENT_ID'))
+    client_secret = getattr(settings, 'OAUTH_VK_SECRET_KEY', os.environ.get('OAUTH_VK_SECRET_KEY'))
+
+    if not client_id:
+        logger.error(_("Application OAuth Vk.com is disabled"))
+        messages.error(request, _("Application OAuth Vk.com is disabled"))
+        return redirect('/')
+
+    redirect_uri = "{shema}://{host}{path}".format(
+        shema=request.META.get('HTTP_X_FORWARDED_PROTO', request.scheme),
+        host=request.get_host(),
+        path=request.path,
+    )
+
+    if not request.GET.get('code'):
+        params = {
+            'client_id': client_id,
+            'redirect_uri': redirect_uri,
+            'response_type': 'code',
+            'state': request.GET.get('next', '/'),
+        }
+
+        redirect_url = "https:///oauth.vk.com/authorize?{param}".format(param=urlencode(params))
+        return redirect(redirect_url)
+
+    data = {
+        'grant_type': 'authorization_code',
+        'code': request.GET.get('code'),
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+    }
+
+    response = requests.post('https://oauth.vk.com/access_token', data=data)
+    json = response.json()
+
+    response_info = requests.post('https://api.vk.com/method/users.get', data={
+        'user_ids': json.get('user_id'),
+        'fields': 'first_name,last_name,bdate,photo_200,screen_name',
+        'access_token': json.get('access_token'),
+        'v': '5.95',
+    })
+    json_info = response_info.json()
+    json_info = json_info.get('response').pop()
+
+    request.session["oauth"] = {
+        'server': 4,
+        'access_token': json.get('access_token'),
+        'refresh_token': None,
+        'token_type': None,
+
+        'id': json.get('user_id'),
+        'birth_date': None,
+        'avatar': json_info.get('photo_200'),
+        'last_name': json_info.get('last_name'),
+        'first_name': json_info.get('first_name'),
+        'email': None,
+
+    }
+
+    # Check login
+    user = json_info.get('screen_name').replace(".", "_")
+    if not models.User.objects.filter(username=user).exists():
+        request.session["oauth"]["username"] = user
+    else:
+        request.session["oauth"]["username"] = "{user}#vk".format(user=user)
+
+    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
+    request.session["oauth"]["expires_in"] = dt.isoformat()
+
+    return redirect(reverse(views.oauth_completion))
+
+
+def oauth_facebook(request: WSGIRequest):
+    client_id = getattr(settings, 'OAUTH_FACEBOOK_CLIENT_ID', os.environ.get('OAUTH_FACEBOOK_CLIENT_ID'))
+    client_secret = getattr(settings, 'OAUTH_FACEBOOK_SECRET_KEY', os.environ.get('OAUTH_FACEBOOK_SECRET_KEY'))
+
+    if not client_id:
+        logger.error(_("Application OAuth Facebook is disabled"))
+        messages.error(request, _("Application OAuth Facebook is disabled"))
+        return redirect('/')
+
+    redirect_uri = "{shema}://{host}{path}".format(
+        shema=request.META.get('HTTP_X_FORWARDED_PROTO', request.scheme),
+        host=request.get_host(),
+        path=request.path,
+    )
+
+    if not request.GET.get('code'):
+        params = {
+            'client_id': client_id,
+            'redirect_uri': redirect_uri,
+            'response_type': 'code',
+            'state': request.GET.get('next', '/'),
+        }
+
+        return redirect('https://www.facebook.com/v3.2/dialog/oauth?' + urlencode(params))
+
+
+# http://127.0.0.1:8000/accounts/oauth/mailru/
+# def oauth_mailru(request: WSGIRequest):
+#     client_id = getattr(settings, 'OAUTH_MAILRU_CLIENT_ID', os.environ.get('OAUTH_MAILRU_CLIENT_ID'))
+#     client_secret = getattr(settings, 'OAUTH_MAILRU_SECRET_KEY', os.environ.get('OAUTH_MAILRU_SECRET_KEY'))
+#
+#     if not client_id:
+#         messages.error(request, _("Application OAuth Mail.ru is disabled"))
+#         return redirect('/')
+#
+#     redirect_uri = "{shema}://{host}{path}".format(
+#         shema=request.META.get('HTTP_X_FORWARDED_PROTO', request.scheme),
+#         host=request.get_host(),
+#         path=request.path,
+#     )
+#
+#     if not request.GET.get('code'):
+#         params = {
+#             'client_id': client_id,
+#             'redirect_uri': redirect_uri,
+#             'response_type': 'code',
+#             'scope': 'userinfo',
+#             'state': request.GET.get('next', '/'),
+#         }
+#         return redirect('https://oauth.mail.ru/login?' + urlencode(params))
+#
+#     data = {
+#         'grant_type': 'authorization_code',
+#         'code': request.GET.get('code'),
+#         'client_id': client_id,
+#         'client_secret': client_secret,
+#         'redirect_uri': redirect_uri,
+#     }
+#
+#     response = requests.post('https://oauth.mail.ru/token', data=data)
+#     json = response.json()
+#
+#     response_info = requests.get(
+#         url='https://oauth.mail.ru/userinfo',
+#         params={'access_token': json.get('access_token')},
+#     )
+#
+#     json_info = response_info.json()
+#
+#     #json.get('access_token')
+#     #json.get('expires_in')
+#     #json.get('refresh_token')
+#     print(json)
+#     print(json_info)
 
 
 def oauth_completion(request: WSGIRequest):
     oauth = request.session.get('oauth')
+    del request.session['oauth']
+    pprint(oauth)
+
     if not oauth:
         messages.error(request, _('Maybe your account has already been activated'))
         return redirect(settings.LOGIN_URL)
@@ -265,42 +471,57 @@ def oauth_completion(request: WSGIRequest):
             if response.status_code == 200:
                 user.profile.avatar.save('avatar.png', ContentFile(response.content))
 
-        del request.session['oauth']
         return redirect(oauth.get('next', '/'))
 
     # If the email user is the same as the account already registered
+    user = None
     if oauth.get('email'):
         user = models.User.objects.filter(email=oauth.get('email'))
         if user.exists():
+            user = user.last()
 
-            # Link with the model Oauth
-            oauth = models.Oauth.objects.create(
-                oauth_id=oauth.get('id'),
-                server=oauth.get('server'),
-                access_token=oauth.get('access_token'),
-                refresh_token=oauth.get('refresh_token'),
-                expires_in=oauth.get('expires_in'),
-                user=user.last(),
-            )
-            oauth.save()
+    if not user:
+        # Registration user
+        user = User.objects.create_user(
+            username=oauth.get('username'),
+            email=oauth.get('email'),
+            first_name=oauth.get('first_name'),
+            last_name=oauth.get('last_name')
+        )
+        user.save()
 
-            # Authentication
-            auth.login(request, oauth.user)
+    # Link with the model Oauth
+    models.Oauth.objects.create(
+        oauth_id=oauth.get('id'),
+        server=oauth.get('server'),
+        access_token=oauth.get('access_token'),
+        refresh_token=oauth.get('refresh_token'),
+        expires_in=oauth.get('expires_in'),
+        user=user,
+    )
 
-            if oauth.get('gender') and not user.profile.gender:
-                user.profile.gender = oauth.get('gender')
-                user.profile.save()
+    # Authentication
+    auth.login(request, user)
 
-            if oauth.get('birth_date') and not user.profile.birth_date:
-                user.profile.birth_date = oauth.get('birth_date')
-                user.profile.save()
+    if oauth.get('gender') and not user.profile.gender:
+        user.profile.gender = oauth.get('gender')
+        user.profile.save()
 
-            if oauth.get('avatar') and not user.profile.avatar:
-                response = requests.get(oauth.get('avatar'))
-                if response.status_code == 200:
-                    user.profile.avatar.save('avatar.png', ContentFile(response.content))
+    if oauth.get('birth_date') and not user.profile.birth_date:
+        user.profile.birth_date = oauth.get('birth_date')
+        user.profile.save()
 
-            del request.session['oauth']
-            return redirect(oauth.get('next', '/'))
+    if oauth.get('avatar') and not user.profile.avatar:
+        response = requests.get(oauth.get('avatar'))
+        if response.status_code == 200:
+            user.profile.avatar.save('avatar.png', ContentFile(response.content))
 
-    pprint(oauth)
+    if oauth.get('last_name') and not user.last_name:
+        user.last_name = oauth.get('last_name')
+        user.save()
+
+    if oauth.get('first_name') and not user.first_name:
+        user.last_name = oauth.get('first_name')
+        user.save()
+
+    return redirect(oauth.get('next', '/'))

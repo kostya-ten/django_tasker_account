@@ -30,7 +30,7 @@ class GeobaseAdmin(admin.ModelAdmin):
 
 
 class OAuthAdmin(admin.ModelAdmin):
-    list_display = ('user', 'oauth_id', 'server', 'access_token', 'refresh_token', 'expires_in')
+    list_display = ('user', 'oauth_id', 'server', 'access_token', 'expires_in')
 
 
 class SessionAdmin(admin.ModelAdmin):

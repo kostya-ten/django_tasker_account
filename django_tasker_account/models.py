@@ -160,7 +160,7 @@ class Oauth(models.Model):
     server = models.IntegerField(choices=SERVER, verbose_name=_("Server"))
 
     access_token = models.CharField(max_length=255, verbose_name=_("Access token"))
-    refresh_token = models.CharField(max_length=255, verbose_name=_("Refresh token"))
+    refresh_token = models.CharField(max_length=255, verbose_name=_("Refresh token"), null=True, blank=True)
     expires_in = models.DateTimeField(verbose_name=_("Expires date"))
 
     class Meta:
