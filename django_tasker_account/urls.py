@@ -15,5 +15,6 @@ urlpatterns = [
     path('oauth/google/', views.oauth_google),
     path('oauth/vk/', views.oauth_vk),
     path('oauth/facebook/', views.oauth_facebook),
+    path('oauth/facebook/deauthorization/', views.oauth_facebook_deauthorization),
     path('oauth/completion/', views.oauth_completion, name="oauth_completion"),
 ]

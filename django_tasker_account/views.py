@@ -367,6 +367,11 @@ def oauth_vk(request: WSGIRequest):
     return redirect(reverse(views.oauth_completion))
 
 
+def oauth_facebook_deauthorization(request: WSGIRequest):
+    print(request.body)
+    return redirect('/')
+
+
 def oauth_facebook(request: WSGIRequest):
     client_id = getattr(settings, 'OAUTH_FACEBOOK_CLIENT_ID', os.environ.get('OAUTH_FACEBOOK_CLIENT_ID'))
     client_secret = getattr(settings, 'OAUTH_FACEBOOK_SECRET_KEY', os.environ.get('OAUTH_FACEBOOK_SECRET_KEY'))
@@ -392,55 +397,45 @@ def oauth_facebook(request: WSGIRequest):
 
         return redirect('https://www.facebook.com/v3.2/dialog/oauth?' + urlencode(params))
 
+    data = {
+        'grant_type': 'authorization_code',
+        'code': request.GET.get('code'),
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+    }
 
-# http://127.0.0.1:8000/accounts/oauth/mailru/
-# def oauth_mailru(request: WSGIRequest):
-#     client_id = getattr(settings, 'OAUTH_MAILRU_CLIENT_ID', os.environ.get('OAUTH_MAILRU_CLIENT_ID'))
-#     client_secret = getattr(settings, 'OAUTH_MAILRU_SECRET_KEY', os.environ.get('OAUTH_MAILRU_SECRET_KEY'))
-#
-#     if not client_id:
-#         messages.error(request, _("Application OAuth Mail.ru is disabled"))
-#         return redirect('/')
-#
-#     redirect_uri = "{shema}://{host}{path}".format(
-#         shema=request.META.get('HTTP_X_FORWARDED_PROTO', request.scheme),
-#         host=request.get_host(),
-#         path=request.path,
-#     )
-#
-#     if not request.GET.get('code'):
-#         params = {
-#             'client_id': client_id,
-#             'redirect_uri': redirect_uri,
-#             'response_type': 'code',
-#             'scope': 'userinfo',
-#             'state': request.GET.get('next', '/'),
-#         }
-#         return redirect('https://oauth.mail.ru/login?' + urlencode(params))
-#
-#     data = {
-#         'grant_type': 'authorization_code',
-#         'code': request.GET.get('code'),
-#         'client_id': client_id,
-#         'client_secret': client_secret,
-#         'redirect_uri': redirect_uri,
-#     }
-#
-#     response = requests.post('https://oauth.mail.ru/token', data=data)
-#     json = response.json()
-#
-#     response_info = requests.get(
-#         url='https://oauth.mail.ru/userinfo',
-#         params={'access_token': json.get('access_token')},
-#     )
-#
-#     json_info = response_info.json()
-#
-#     #json.get('access_token')
-#     #json.get('expires_in')
-#     #json.get('refresh_token')
-#     print(json)
-#     print(json_info)
+    response = requests.post('https://graph.facebook.com/v3.3/oauth/access_token', data=data)
+    json = response.json()
+
+    params = {'fields': 'id,first_name,last_name,picture.height(200)'}
+    headers = {'Authorization': 'OAuth ' + json.get('access_token')}
+    response_info = requests.get('https://graph.facebook.com/v3.2/me', params=params, headers=headers)
+    json_info = response_info.json()
+
+    picture = None
+    if json_info.get('picture') and json_info.get('picture').get('data'):
+        picture = json_info.get('picture').get('data').get('url')
+
+    request.session["oauth"] = {
+        'server': 5,
+        'access_token': json.get('access_token'),
+        'refresh_token': None,
+        'token_type': json.get('token_type'),
+
+        'id': json_info.get('id'),
+        'birth_date': None,
+        'avatar': picture,
+        'last_name': json_info.get('last_name'),
+        'first_name': json_info.get('first_name'),
+        'email': None,
+        'username': "{user}#facebook".format(user=json_info.get('id'))
+    }
+
+    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
+    request.session["oauth"]["expires_in"] = dt.isoformat()
+
+    return redirect(reverse(views.oauth_completion))
 
 
 def oauth_completion(request: WSGIRequest):

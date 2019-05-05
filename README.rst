@@ -31,11 +31,10 @@ Features
    * Avatar
 * OAuth
    * Provider
-      * Yandex
-      * Mail.ru
-      * Facebook
       * Google
-      * VK.com   
+      * Facebook
+      * VK.com
+      * Yandex
    * Filling user profile from provider OAuth
    * Automatic download avatar
 * 2FA
