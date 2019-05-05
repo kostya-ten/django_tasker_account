@@ -367,11 +367,6 @@ def oauth_vk(request: WSGIRequest):
     return redirect(reverse(views.oauth_completion))
 
 
-def oauth_facebook_deauthorization(request: WSGIRequest):
-    print(request.body)
-    return redirect('/')
-
-
 def oauth_facebook(request: WSGIRequest):
     client_id = getattr(settings, 'OAUTH_FACEBOOK_CLIENT_ID', os.environ.get('OAUTH_FACEBOOK_CLIENT_ID'))
     client_secret = getattr(settings, 'OAUTH_FACEBOOK_SECRET_KEY', os.environ.get('OAUTH_FACEBOOK_SECRET_KEY'))
@@ -466,6 +461,10 @@ def oauth_completion(request: WSGIRequest):
             if response.status_code == 200:
                 user.profile.avatar.save('avatar.png', ContentFile(response.content))
 
+        if not user.profile.geobase:
+            user.profile.geobase = geobase.detect_ip(query=request)
+            user.profile.save()
+
         return redirect(oauth.get('next', '/'))
 
     # If the email user is the same as the account already registered
@@ -518,5 +517,8 @@ def oauth_completion(request: WSGIRequest):
     if oauth.get('first_name') and not user.first_name:
         user.last_name = oauth.get('first_name')
         user.save()
+
+    user.profile.geobase = geobase.detect_ip(query=request)
+    user.profile.save()
 
     return redirect(oauth.get('next', '/'))
