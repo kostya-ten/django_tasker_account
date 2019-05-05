@@ -1,6 +1,6 @@
 import logging
 import os
-
+import hashlib
 import requests
 
 from pprint import pprint
@@ -442,10 +442,13 @@ def oauth_completion(request: WSGIRequest):
         messages.error(request, _('Maybe your account has already been activated'))
         return redirect(settings.LOGIN_URL)
 
+    m = hashlib.sha512()
+    m.update(oauth.get('id').encode("utf-8"))
+
     # If the user is already registered through OAuth
-    result = models.Oauth.objects.filter(oauth_id=oauth.get('id'), server=oauth.get('server'))
+    result = models.Oauth.objects.filter(oauth_id=m.hexdigest(), server=oauth.get('server'))
     if result.exists():
-        user = result.get(oauth_id=oauth.get('id'), server=oauth.get('server')).user
+        user = result.get(oauth_id=m.hexdigest(), server=oauth.get('server')).user
         auth.login(request, user)
 
         if oauth.get('gender') and not user.profile.gender:
@@ -486,7 +489,7 @@ def oauth_completion(request: WSGIRequest):
 
     # Link with the model Oauth
     models.Oauth.objects.create(
-        oauth_id=oauth.get('id'),
+        oauth_id=m.hexdigest(),
         server=oauth.get('server'),
         access_token=oauth.get('access_token'),
         refresh_token=oauth.get('refresh_token'),
