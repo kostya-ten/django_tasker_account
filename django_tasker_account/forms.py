@@ -329,3 +329,20 @@ class ChangePassword(SetPasswordForm):
         auth.login(self.request, self.user)
         logger.info("User authentication username:{username}".format(username=self.user.username))
         return self.user
+
+
+class OAuth(forms.Form):
+    username = forms.CharField(
+        widget=TextInput(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+                'autocomplete': 'off',
+                'placeholder': _('Username')
+            }
+        ),
+        validators=[
+            validators.username,
+            validators.username_dublicate,
+        ]
+    )
+

@@ -1,6 +1,8 @@
 import logging
 import os
 import hashlib
+from importlib import import_module
+
 import requests
 
 from pprint import pprint
@@ -412,28 +414,28 @@ def oauth_facebook(request: WSGIRequest):
     if json_info.get('picture') and json_info.get('picture').get('data'):
         picture = json_info.get('picture').get('data').get('url')
 
-    request.session["oauth"] = {
-        'server': 5,
-        'access_token': json.get('access_token'),
-        'refresh_token': None,
-        'token_type': json.get('token_type'),
-
-        'id': json_info.get('id'),
-        'birth_date': None,
-        'avatar': picture,
-        'last_name': json_info.get('last_name'),
-        'first_name': json_info.get('first_name'),
-        'email': None,
-        'username': "{user}#facebook".format(user=json_info.get('id'))
-    }
-
     dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
-    request.session["oauth"]["expires_in"] = dt.isoformat()
 
-    return redirect(reverse(views.oauth_completion))
+    session_store = import_module(settings.SESSION_ENGINE).SessionStore
+    session = session_store()
+
+    session['server'] = 5,
+    session['access_token'] = json.get('access_token'),
+    session['id'] = json_info.get('id'),
+    session['birth_date'] = None,
+    session['avatar'] = picture,
+    session['last_name'] = json_info.get('last_name'),
+    session['first_name'] = json_info.get('first_name'),
+    session['email'] = None,
+    session['username'] = None,
+    session['expires_in'] = dt.isoformat(),
+    session['module'] = __name__,
+    session.create()
+
+    return redirect("{url}{session_key}/".format(url=reverse(views.oauth_completion), session_key=session.session_key))
 
 
-def oauth_completion(request: WSGIRequest):
+def oauth_completion(request: WSGIRequest, data: converters.OAuth):
     oauth = request.session.get('oauth')
     del request.session['oauth']
     pprint(oauth)
@@ -442,86 +444,92 @@ def oauth_completion(request: WSGIRequest):
         messages.error(request, _('Maybe your account has already been activated'))
         return redirect(settings.LOGIN_URL)
 
-    m = hashlib.sha512()
-    m.update(oauth.get('id').encode("utf-8"))
+    return render(request, 'django_tasker_account/oauth_completion.html', {'form': forms.OAuth()})
 
-    # If the user is already registered through OAuth
-    result = models.Oauth.objects.filter(oauth_id=m.hexdigest(), server=oauth.get('server'))
-    if result.exists():
-        user = result.get(oauth_id=m.hexdigest(), server=oauth.get('server')).user
-        auth.login(request, user)
-
-        if oauth.get('gender') and not user.profile.gender:
-            user.profile.gender = oauth.get('gender')
-            user.profile.save()
-
-        if oauth.get('birth_date') and not user.profile.birth_date:
-            user.profile.birth_date = oauth.get('birth_date')
-            user.profile.save()
-
-        if oauth.get('avatar') and not user.profile.avatar:
-            response = requests.get(oauth.get('avatar'))
-            if response.status_code == 200:
-                user.profile.avatar.save('avatar.png', ContentFile(response.content))
-
-        if not user.profile.geobase:
-            user.profile.geobase = geobase.detect_ip(query=request)
-            user.profile.save()
-
-        return redirect(oauth.get('next', '/'))
-
-    # If the email user is the same as the account already registered
-    user = None
-    if oauth.get('email'):
-        user = models.User.objects.filter(email=oauth.get('email'))
-        if user.exists():
-            user = user.last()
-
-    if not user:
-        # Registration user
-        user = User.objects.create_user(
-            username=oauth.get('username'),
-            email=oauth.get('email'),
-            first_name=oauth.get('first_name'),
-            last_name=oauth.get('last_name')
-        )
-        user.save()
-
-    # Link with the model Oauth
-    models.Oauth.objects.create(
-        oauth_id=m.hexdigest(),
-        server=oauth.get('server'),
-        access_token=oauth.get('access_token'),
-        refresh_token=oauth.get('refresh_token'),
-        expires_in=oauth.get('expires_in'),
-        user=user,
-    )
-
-    # Authentication
-    auth.login(request, user)
-
-    if oauth.get('gender') and not user.profile.gender:
-        user.profile.gender = oauth.get('gender')
-        user.profile.save()
-
-    if oauth.get('birth_date') and not user.profile.birth_date:
-        user.profile.birth_date = oauth.get('birth_date')
-        user.profile.save()
-
-    if oauth.get('avatar') and not user.profile.avatar:
-        response = requests.get(oauth.get('avatar'))
-        if response.status_code == 200:
-            user.profile.avatar.save('avatar.png', ContentFile(response.content))
-
-    if oauth.get('last_name') and not user.last_name:
-        user.last_name = oauth.get('last_name')
-        user.save()
-
-    if oauth.get('first_name') and not user.first_name:
-        user.last_name = oauth.get('first_name')
-        user.save()
-
-    user.profile.geobase = geobase.detect_ip(query=request)
-    user.profile.save()
-
-    return redirect(oauth.get('next', '/'))
+    # m = hashlib.sha512()
+    # m.update(oauth.get('id').encode("utf-8"))
+    #
+    # # If the user is already registered through OAuth
+    # result = models.Oauth.objects.filter(oauth_id=m.hexdigest(), server=oauth.get('server'))
+    # if result.exists():
+    #     user = result.get(oauth_id=m.hexdigest(), server=oauth.get('server')).user
+    #     auth.login(request, user)
+    #
+    #     if oauth.get('gender') and not user.profile.gender:
+    #         user.profile.gender = oauth.get('gender')
+    #         user.profile.save()
+    #
+    #     if oauth.get('birth_date') and not user.profile.birth_date:
+    #         user.profile.birth_date = oauth.get('birth_date')
+    #         user.profile.save()
+    #
+    #     if oauth.get('avatar') and not user.profile.avatar:
+    #         response = requests.get(oauth.get('avatar'))
+    #         if response.status_code == 200:
+    #             user.profile.avatar.save('avatar.png', ContentFile(response.content))
+    #
+    #     if not user.profile.geobase:
+    #         user.profile.geobase = geobase.detect_ip(query=request)
+    #         user.profile.save()
+    #
+    #     return redirect(oauth.get('next', '/'))
+    #
+    # # If the email user is the same as the account already registered
+    # user = None
+    # if oauth.get('email'):
+    #     user = models.User.objects.filter(email=oauth.get('email'))
+    #     if user.exists():
+    #         user = user.last()
+    #
+    # if not user:
+    #     # Registration user
+    #
+    #     if not models.User.objects.filter(username=oauth.get('username')).exists():
+    #         raise Exception("Username is exists")
+    #
+    #     user = User.objects.create_user(
+    #         username=oauth.get('username'),
+    #         email=oauth.get('email'),
+    #         first_name=oauth.get('first_name'),
+    #         last_name=oauth.get('last_name')
+    #     )
+    #     user.save()
+    #
+    # # Link with the model Oauth
+    # models.Oauth.objects.create(
+    #     oauth_id=m.hexdigest(),
+    #     server=oauth.get('server'),
+    #     access_token=oauth.get('access_token'),
+    #     refresh_token=oauth.get('refresh_token'),
+    #     expires_in=oauth.get('expires_in'),
+    #     user=user,
+    # )
+    #
+    # # Authentication
+    # auth.login(request, user)
+    #
+    # if oauth.get('gender') and not user.profile.gender:
+    #     user.profile.gender = oauth.get('gender')
+    #     user.profile.save()
+    #
+    # if oauth.get('birth_date') and not user.profile.birth_date:
+    #     user.profile.birth_date = oauth.get('birth_date')
+    #     user.profile.save()
+    #
+    # if oauth.get('avatar') and not user.profile.avatar:
+    #     response = requests.get(oauth.get('avatar'))
+    #     if response.status_code == 200:
+    #         user.profile.avatar.save('avatar.png', ContentFile(response.content))
+    #
+    # if oauth.get('last_name') and not user.last_name:
+    #     user.last_name = oauth.get('last_name')
+    #     user.save()
+    #
+    # if oauth.get('first_name') and not user.first_name:
+    #     user.last_name = oauth.get('first_name')
+    #     user.save()
+    #
+    # user.profile.geobase = geobase.detect_ip(query=request)
+    # user.profile.save()
+    #
+    # return redirect(oauth.get('next', '/'))

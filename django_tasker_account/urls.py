@@ -3,6 +3,7 @@ from . import views, converters
 
 register_converter(converters.ConfirmEmail, 'confirm_email')
 register_converter(converters.ChangePassword, 'change_password')
+register_converter(converters.OAuth, 'oauth')
 
 urlpatterns = [
     path('login/', views.login),
@@ -15,5 +16,5 @@ urlpatterns = [
     path('oauth/google/', views.oauth_google),
     path('oauth/vk/', views.oauth_vk),
     path('oauth/facebook/', views.oauth_facebook),
-    path('oauth/completion/', views.oauth_completion, name="oauth_completion"),
+    path('oauth/completion/<oauth:data>/', views.oauth_completion, name="oauth_completion"),
 ]

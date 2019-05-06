@@ -77,3 +77,40 @@ class ChangePassword:
     def to_url(value):
         return value
 
+
+class OAuth:
+    regex = '[a-z0-9]+'
+
+    def __init__(self):
+        self.server = None
+        self.access_token = None
+        self.id = None
+        self.birth_date = None
+        self.avatar = None
+        self.last_name = None
+        self.first_name = None
+        self.email = None
+        self.username = None
+        self.expires_in = None
+
+    def to_python(self, session_key):
+        session_store = import_module(settings.SESSION_ENGINE).SessionStore
+        session = session_store(session_key=session_key)
+
+        if session is None:
+            raise ValueError('Session not found')
+
+        if session.get('module') == 'django_tasker_account.views':
+            self.server = session.get('server')
+            self.access_token = session.get('access_token')
+            self.id = session.get('id')
+            self.birth_date = session.get('birth_date')
+            self.avatar = session.get('avatar')
+            self.last_name = session.get('last_name')
+            self.first_name = session.get('first_name')
+            self.email = session.get('email')
+            self.username = session.get('username')
+            self.expires_in = session.get('expires_in')
+            return self
+        else:
+            raise ValueError('Session not found')
