@@ -147,7 +147,7 @@ class Profile(models.Model):
 
 
 class Oauth(models.Model):
-    SERVER = (
+    PROVIDER = (
         (1, 'Google'),
         (2, 'Yandex'),
         (3, 'Mail.ru'),
@@ -157,19 +157,18 @@ class Oauth(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_("User"))
     oauth_id = models.CharField(max_length=255, verbose_name=_("Oauth ID"))
-    server = models.IntegerField(choices=SERVER, verbose_name=_("Server"))
+    provider = models.IntegerField(choices=PROVIDER, verbose_name=_("Server"))
 
     access_token = models.CharField(max_length=255, verbose_name=_("Access token"))
-    refresh_token = models.CharField(max_length=255, verbose_name=_("Refresh token"), null=True, blank=True)
     expires_in = models.DateTimeField(verbose_name=_("Expires date"))
 
     class Meta:
-        unique_together = (('oauth_id', 'server'),)
+        unique_together = (('oauth_id', 'provider'),)
         verbose_name = _("OAuth")
         verbose_name_plural = _("OAuth")
 
     def __str__(self):
-        return '%s %s' % (self.server, self.user)
+        return '%s %s' % (self.provider, self.user)
 
 # Signals
 @receiver(post_save, sender=User)

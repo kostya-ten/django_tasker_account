@@ -53,7 +53,6 @@ def signup(request: WSGIRequest):
 
 
 def confirm_email(request: WSGIRequest, data: converters.ConfirmEmail):
-
     form = forms.Signup(data={
         'username': data.username,
         'last_name': data.last_name,
@@ -69,7 +68,7 @@ def confirm_email(request: WSGIRequest, data: converters.ConfirmEmail):
         auth.login(request, user)
 
         # Set language profile
-        #user.profile.language = get_supported_language_variant(get_language_from_request(request))
+        # user.profile.language = get_supported_language_variant(get_language_from_request(request))
         user.profile.geobase = geobase.detect_ip(query=request)
         user.profile.save()
 
@@ -187,6 +186,8 @@ def oauth_google(request: WSGIRequest):
         if not models.User.objects.filter(username=user).exists():
             session["oauth"]["username"] = user
 
+        session["oauth"]["email"] = email
+
     session.create()
     return redirect(reverse(views.oauth_completion, kwargs={'data': session.session_key}))
 
@@ -254,7 +255,7 @@ def oauth_yandex(request: WSGIRequest):
         'last_name': json_info.get('last_name'),
         'first_name': json_info.get('first_name'),
         'expires_in': dt.isoformat(),
-        'module':  __name__,
+        'module': __name__,
     }
 
     if not json_info.get('is_avatar_empty'):
@@ -448,17 +449,59 @@ def oauth_facebook(request: WSGIRequest):
 
 
 def oauth_completion(request: WSGIRequest, data: converters.OAuth):
-    #oauth = request.session.get('oauth')
-    #del request.session['oauth']
+    # If the user is already registered through OAuth
+    result = models.Oauth.objects.filter(oauth_id=data.id, provider=data.provider)
+    if result.exists():
+        user = result.get(oauth_id=data.id, provider=data.provider).user
+        auth.login(request, user)
+        return redirect(data.next)
 
-    #print(data.server)
+    # If the email user is the same as the account already registered
+    if data.email:
+        user = models.User.objects.filter(email=data.email)
+        if user.exists():
+            user = user.last()
 
-    return render(request, 'django_tasker_account/oauth_completion.html', {'form': forms.OAuth()})
+            _link_oauth(user=user, data=data)
+            data.session.delete()
+
+            # Authentication
+            auth.login(request, user)
+            return redirect(data.next)
+
+    if data.username:
+        user = models.User.objects.filter(username=data.username)
+        if not user.exists():
+            user = User.objects.create_user(
+                username=data.username,
+                email=data.email,
+                last_name=data.last_name,
+                first_name=data.first_name,
+            )
+
+            _link_oauth(user=user, data=data)
+            data.session.delete()
+
+            # Authentication
+            auth.login(request, user)
+            return redirect(data.next)
+
+    form = forms.OAuth(initial={'username': data.username})
+    return render(request, 'django_tasker_account/oauth_completion.html', {'form': form})
+
+    # if not user:
+    #    user = User.objects.create_user(
+    #        username=data.username,
+    #        email=oauth.get('email'),
+    #        first_name=oauth.get('first_name'),
+    #        last_name=oauth.get('last_name')
+    #    )
+    #    user.save(
 
     # m = hashlib.sha512()
     # m.update(oauth.get('id').encode("utf-8"))
     #
-    # # If the user is already registered through OAuth
+    #
     # result = models.Oauth.objects.filter(oauth_id=m.hexdigest(), server=oauth.get('server'))
     # if result.exists():
     #     user = result.get(oauth_id=m.hexdigest(), server=oauth.get('server')).user
@@ -542,3 +585,46 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
     # user.profile.save()
     #
     # return redirect(oauth.get('next', '/'))
+
+
+# Link with the model Oauth
+def _link_oauth(user: User, data: converters.OAuth) -> None:
+
+    flag_save_profile = False
+    flag_save_user = False
+
+    if data.gender and not user.profile.gender:
+        user.profile.gender = data.gender
+        flag_save_profile = True
+
+    if data.birth_date and not user.profile.birth_date:
+        user.profile.birth_date = data.birth_date
+        flag_save_profile = True
+
+    if data.last_name and not user.last_name:
+        user.last_name = data.last_name
+        flag_save_user = True
+
+    if data.first_name and not user.first_name:
+        user.first_name = data.first_name
+        flag_save_user = True
+
+    if data.avatar and not user.profile.avatar:
+        response = requests.get(data.avatar)
+        if response.status_code == 200:
+            user.profile.avatar.save('avatar.png', ContentFile(response.content))
+            flag_save_profile = True
+
+    if flag_save_profile:
+        user.profile.save()
+
+    if flag_save_user:
+        user.save()
+
+    models.Oauth.objects.create(
+        oauth_id=data.id,
+        provider=data.provider,
+        access_token=data.access_token,
+        expires_in=data.expires_in,
+        user=user,
+    )

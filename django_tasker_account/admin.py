@@ -30,8 +30,8 @@ class GeobaseAdmin(admin.ModelAdmin):
 
 
 class OAuthAdmin(admin.ModelAdmin):
-    list_display = ('user', 'server', 'expires_in')
-    readonly_fields = ('oauth_id', 'user', 'server', 'expires_in', 'refresh_token', 'access_token')
+    list_display = ('user', 'provider', 'expires_in')
+    readonly_fields = ('oauth_id', 'user', 'provider', 'expires_in', 'access_token')
 
     def has_add_permission(self, request):
         return False
