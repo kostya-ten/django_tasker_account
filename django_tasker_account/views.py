@@ -1,9 +1,10 @@
 import logging
 import os
 import hashlib
-from importlib import import_module
-
+import re
 import requests
+
+from importlib import import_module
 
 from pprint import pprint
 from urllib.parse import urlencode
@@ -107,7 +108,89 @@ def change_password(request: WSGIRequest, data: converters.ChangePassword):
     return render(request, "django_tasker_account/change_password.html", {'form': form}, status=400)
 
 
-# http://127.0.0.1:8000/accounts/oauth/yandex/
+def oauth_google(request: WSGIRequest):
+    client_id = getattr(settings, 'OAUTH_GOOGLE_CLIENT_ID', os.environ.get('OAUTH_GOOGLE_CLIENT_ID'))
+    client_secret = getattr(settings, 'OAUTH_GOOGLE_SECRET_KEY', os.environ.get('OAUTH_GOOGLE_SECRET_KEY'))
+
+    if not client_id:
+        logger.error(_("Application OAuth Google is disabled"))
+        messages.error(request, _("Application OAuth Google is disabled"))
+        return redirect('/')
+
+    redirect_uri = "{shema}://{host}{path}".format(
+        shema=request.META.get('HTTP_X_FORWARDED_PROTO', request.scheme),
+        host=request.get_host(),
+        path=request.path,
+    )
+
+    if not request.GET.get('code'):
+        params = {
+            'client_id': client_id,
+            'redirect_uri': redirect_uri,
+            'response_type': 'code',
+            'state': request.GET.get('next', '/'),
+            'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+        }
+
+        redirect_url = "https://accounts.google.com/o/oauth2/v2/auth?{param}".format(param=urlencode(params))
+        return redirect(redirect_url)
+
+    data = {
+        'grant_type': 'authorization_code',
+        'code': request.GET.get('code'),
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+    }
+
+    response = requests.post('https://www.googleapis.com/oauth2/v4/token', data=data)
+    json = response.json()
+
+    response_info = requests.get(
+        url='https://www.googleapis.com/oauth2/v1/userinfo',
+        params={'format': 'json'},
+        headers={'Authorization': 'OAuth ' + json.get('access_token')})
+
+    json_info = response_info.json()
+
+    session_store = import_module(settings.SESSION_ENGINE).SessionStore
+    session = session_store()
+
+    m = hashlib.sha256()
+    m.update(str(json_info.get('id')).encode("utf-8"))
+
+    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
+
+    session["oauth"] = {
+        'provider': 1,
+        'id': m.hexdigest(),
+        'access_token': json.get('access_token'),
+        'birth_date': None,
+        'gender': None,
+        'avatar': json_info.get('picture'),
+        'last_name': json_info.get('family_name'),
+        'first_name': json_info.get('given_name'),
+        'username': None,
+        'module': __name__,
+        'expires_in': dt.isoformat()
+    }
+
+    if json_info.get('verified_email'):
+        email = json_info.get('email').strip().lower()
+        user = email.rsplit('@', 1)[0]
+
+        if validate_email(email).get('domain') != 'gmail.com':
+            messages.error(request, _('Allowed to use for authorization domain gmail.com'))
+            return redirect(settings.LOGIN_URL)
+
+        user = str(user).replace(".", "_")
+        if not models.User.objects.filter(username=user).exists():
+            session["oauth"]["username"] = user
+
+    session.create()
+    return redirect(reverse(views.oauth_completion, kwargs={'data': session.session_key}))
+
+
 def oauth_yandex(request: WSGIRequest):
     client_id = getattr(settings, 'OAUTH_YANDEX_CLIENT_ID', os.environ.get('OAUTH_YANDEX_CLIENT_ID'))
     client_secret = getattr(settings, 'OAUTH_YANDEX_SECRET_KEY', os.environ.get('OAUTH_YANDEX_SECRET_KEY'))
@@ -161,6 +244,8 @@ def oauth_yandex(request: WSGIRequest):
     m = hashlib.sha256()
     m.update(str(json_info.get('id')).encode("utf-8"))
 
+    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
+
     session["oauth"] = {
         'provider': 2,
         'id': m.hexdigest(),
@@ -168,6 +253,8 @@ def oauth_yandex(request: WSGIRequest):
         'birth_date': json_info.get('birthday'),
         'last_name': json_info.get('last_name'),
         'first_name': json_info.get('first_name'),
+        'expires_in': dt.isoformat(),
+        'module':  __name__,
     }
 
     if not json_info.get('is_avatar_empty'):
@@ -207,98 +294,9 @@ def oauth_yandex(request: WSGIRequest):
         session["oauth"]["username"] = None
 
     session["oauth"]["email"] = email
-
-    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
-    session["oauth"]["expires_in"] = dt.isoformat()
-    session["oauth"]['module'] = __name__
     session.create()
 
     return redirect(reverse(views.oauth_completion, kwargs={'data': session.session_key}))
-
-
-def oauth_google(request: WSGIRequest):
-    client_id = getattr(settings, 'OAUTH_GOOGLE_CLIENT_ID', os.environ.get('OAUTH_GOOGLE_CLIENT_ID'))
-    client_secret = getattr(settings, 'OAUTH_GOOGLE_SECRET_KEY', os.environ.get('OAUTH_GOOGLE_SECRET_KEY'))
-
-    if not client_id:
-        logger.error(_("Application OAuth Google is disabled"))
-        messages.error(request, _("Application OAuth Google is disabled"))
-        return redirect('/')
-
-    redirect_uri = "{shema}://{host}{path}".format(
-        shema=request.META.get('HTTP_X_FORWARDED_PROTO', request.scheme),
-        host=request.get_host(),
-        path=request.path,
-    )
-
-    if not request.GET.get('code'):
-        params = {
-            'client_id': client_id,
-            'redirect_uri': redirect_uri,
-            'response_type': 'code',
-            'state': request.GET.get('next', '/'),
-            'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
-        }
-
-        redirect_url = "https://accounts.google.com/o/oauth2/v2/auth?{param}".format(param=urlencode(params))
-        return redirect(redirect_url)
-
-    data = {
-        'grant_type': 'authorization_code',
-        'code': request.GET.get('code'),
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'redirect_uri': redirect_uri,
-    }
-
-    response = requests.post('https://www.googleapis.com/oauth2/v4/token', data=data)
-    json = response.json()
-
-    response_info = requests.get(
-        url='https://www.googleapis.com/oauth2/v1/userinfo',
-        params={'format': 'json'},
-        headers={'Authorization': 'OAuth ' + json.get('access_token')})
-
-    json_info = response_info.json()
-
-    request.session["oauth"] = {
-        'server': 1,
-        'access_token': json.get('access_token'),
-        'refresh_token': None,
-        'token_type': json.get('token_type'),
-
-        'id': json_info.get('id'),
-        'birth_date': None,
-        'avatar': json_info.get('picture'),
-        'last_name': json_info.get('family_name'),
-        'first_name': json_info.get('given_name'),
-    }
-
-    if json_info.get('verified_email'):
-        email = json_info.get('email').strip().lower()
-        user = email.rsplit('@', 1)[0]
-
-        if validate_email(email).get('domain') != 'gmail.com':
-            messages.error(request, _('Allowed to use for authorization domain gmail.com'))
-            return redirect(settings.LOGIN_URL)
-
-        request.session["oauth"]["email"] = email
-
-        # Check login
-        user = str(user).replace(".", "_")
-        if not models.User.objects.filter(username=user).exists():
-            request.session["oauth"]["username"] = user
-        else:
-            request.session["oauth"]["username"] = "{user}#google".format(user=user)
-
-    else:
-        request.session["oauth"]["email"] = None
-        request.session["oauth"]["username"] = "{username}#google".format(username=json_info.get('id'))
-
-    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
-    request.session["oauth"]["expires_in"] = dt.isoformat()
-
-    return redirect(reverse(views.oauth_completion))
 
 
 def oauth_vk(request: WSGIRequest):
@@ -347,32 +345,36 @@ def oauth_vk(request: WSGIRequest):
     json_info = response_info.json()
     json_info = json_info.get('response').pop()
 
-    request.session["oauth"] = {
-        'server': 4,
-        'access_token': json.get('access_token'),
-        'refresh_token': None,
-        'token_type': None,
+    session_store = import_module(settings.SESSION_ENGINE).SessionStore
+    session = session_store()
 
-        'id': json.get('user_id'),
-        'birth_date': None,
-        'avatar': json_info.get('photo_200'),
+    m = hashlib.sha256()
+    m.update(str(json.get('user_id')).encode("utf-8"))
+
+    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
+
+    session["oauth"] = {
+        'provider': 4,
+        'id': m.hexdigest(),
+        'access_token': json.get('access_token'),
+        'birth_date': json_info.get('birthday'),
         'last_name': json_info.get('last_name'),
         'first_name': json_info.get('first_name'),
         'email': None,
-
+        'gender': None,
+        'avatar': json_info.get('photo_200'),
+        'username': None,
+        'expires_in': dt.isoformat(),
+        'module': __name__,
     }
 
-    # Check login
-    user = json_info.get('screen_name').replace(".", "_")
-    if not models.User.objects.filter(username=user).exists():
-        request.session["oauth"]["username"] = user
-    else:
-        request.session["oauth"]["username"] = "{user}#vk".format(user=user)
+    if not re.match(r'^id[0-9]+', json_info.get('screen_name')):
+        user = json_info.get('screen_name').replace(".", "_")
+        if not models.User.objects.filter(username=user).exists():
+            session["oauth"]["username"] = user
 
-    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
-    request.session["oauth"]["expires_in"] = dt.isoformat()
-
-    return redirect(reverse(views.oauth_completion))
+    session.create()
+    return redirect(reverse(views.oauth_completion, kwargs={'data': session.session_key}))
 
 
 def oauth_facebook(request: WSGIRequest):
@@ -416,29 +418,33 @@ def oauth_facebook(request: WSGIRequest):
     response_info = requests.get('https://graph.facebook.com/v3.2/me', params=params, headers=headers)
     json_info = response_info.json()
 
+    session_store = import_module(settings.SESSION_ENGINE).SessionStore
+    session = session_store()
+
+    m = hashlib.sha256()
+    m.update(str(json_info.get('id')).encode("utf-8"))
+
     picture = None
     if json_info.get('picture') and json_info.get('picture').get('data'):
         picture = json_info.get('picture').get('data').get('url')
 
     dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
 
-    session_store = import_module(settings.SESSION_ENGINE).SessionStore
-    session = session_store()
-
-    session['server'] = 5,
-    session['access_token'] = json.get('access_token'),
-    session['id'] = json_info.get('id'),
-    session['birth_date'] = None,
-    session['avatar'] = picture,
-    session['last_name'] = json_info.get('last_name'),
-    session['first_name'] = json_info.get('first_name'),
-    session['email'] = None,
-    session['username'] = None,
-    session['expires_in'] = dt.isoformat(),
-    session['module'] = __name__,
+    session["oauth"] = {
+        'provider': 5,
+        'id': m.hexdigest(),
+        'access_token': json.get('access_token'),
+        'birth_date': None,
+        'last_name': json_info.get('last_name'),
+        'first_name': json_info.get('first_name'),
+        'email': None,
+        'username': None,
+        'avatar': picture,
+        'expires_in': dt.isoformat(),
+        'module': __name__,
+    }
     session.create()
-
-    return redirect("{url}{session_key}/".format(url=reverse(views.oauth_completion), session_key=session.session_key))
+    return redirect(reverse(views.oauth_completion, kwargs={'data': session.session_key}))
 
 
 def oauth_completion(request: WSGIRequest, data: converters.OAuth):
