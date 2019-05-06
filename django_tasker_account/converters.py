@@ -1,4 +1,6 @@
+import hashlib
 from importlib import import_module
+from pprint import pprint
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -100,17 +102,26 @@ class OAuth:
         if session is None:
             raise ValueError('Session not found')
 
-        if session.get('module') == 'django_tasker_account.views':
-            self.server = session.get('server')
-            self.access_token = session.get('access_token')
-            self.id = session.get('id')
-            self.birth_date = session.get('birth_date')
-            self.avatar = session.get('avatar')
-            self.last_name = session.get('last_name')
-            self.first_name = session.get('first_name')
-            self.email = session.get('email')
-            self.username = session.get('username')
-            self.expires_in = session.get('expires_in')
+        if session.get('oauth') is None:
+            raise ValueError('Session not found')
+
+        pprint(session.get('oauth'))
+
+        if session.get('oauth').get('module') == 'django_tasker_account.views':
+            self.server = session.get('oauth').get('server')
+            self.access_token = session.get('oauth').get('access_token')
+            self.id = session.get('oauth').get('id')
+            self.birth_date = session.get('oauth').get('birth_date')
+            self.avatar = session.get('oauth').get('avatar')
+            self.last_name = session.get('oauth').get('last_name')
+            self.first_name = session.get('oauth').get('first_name')
+            self.email = session.get('oauth').get('email')
+            self.username = session.get('oauth').get('username')
+            self.expires_in = session.get('oauth').get('expires_in')
             return self
         else:
             raise ValueError('Session not found')
+
+    @staticmethod
+    def to_url(value):
+        return value

@@ -107,6 +107,7 @@ def change_password(request: WSGIRequest, data: converters.ChangePassword):
     return render(request, "django_tasker_account/change_password.html", {'form': form}, status=400)
 
 
+# http://127.0.0.1:8000/accounts/oauth/yandex/
 def oauth_yandex(request: WSGIRequest):
     client_id = getattr(settings, 'OAUTH_YANDEX_CLIENT_ID', os.environ.get('OAUTH_YANDEX_CLIENT_ID'))
     client_secret = getattr(settings, 'OAUTH_YANDEX_SECRET_KEY', os.environ.get('OAUTH_YANDEX_SECRET_KEY'))
@@ -154,36 +155,39 @@ def oauth_yandex(request: WSGIRequest):
 
     json_info = response_info.json()
 
-    request.session["oauth"] = {
-        'server': 2,
-        'access_token': json.get('access_token'),
-        'refresh_token': json.get('refresh_token'),
-        'token_type': json.get('token_type'),
+    session_store = import_module(settings.SESSION_ENGINE).SessionStore
+    session = session_store()
 
-        'id': json_info.get('id'),
+    m = hashlib.sha256()
+    m.update(str(json_info.get('id')).encode("utf-8"))
+
+    session["oauth"] = {
+        'provider': 2,
+        'id': m.hexdigest(),
+        'access_token': json.get('access_token'),
         'birth_date': json_info.get('birthday'),
         'last_name': json_info.get('last_name'),
         'first_name': json_info.get('first_name'),
     }
 
-    if json_info.get('sex') == 'male':
-        request.session["oauth"]["gender"] = 1
-    elif json_info.get('sex') == 'female':
-        request.session["oauth"]["gender"] = 2
-    else:
-        request.session["oauth"]["gender"] = None
-
     if not json_info.get('is_avatar_empty'):
-        request.session["oauth"]["avatar"] = "https://avatars.yandex.net/get-yapic/{avatar_id}/islands-200".format(
+        session["oauth"]["avatar"] = "https://avatars.yandex.net/get-yapic/{avatar_id}/islands-200".format(
             avatar_id=json_info.get('default_avatar_id')
         )
     else:
-        request.session["oauth"]["avatar"] = None
+        session["oauth"]["avatar"] = None
 
-    # Verifying that the user is registered with yandex domains
+    if json_info.get('sex') == 'male':
+        session["oauth"]["gender"] = 1
+    elif json_info.get('sex') == 'female':
+        session["oauth"]["gender"] = 2
+    else:
+        session["oauth"]["gender"] = None
+
     email = json_info.get('default_email').strip().lower()
     user = email.rsplit('@', 1)[0]
     domain = email.rsplit('@', 1)[-1]
+
     if domain == 'ya.ru' or \
             domain == 'yandex.by' or \
             domain == 'yandex.com' or \
@@ -195,19 +199,21 @@ def oauth_yandex(request: WSGIRequest):
         messages.error(request, _('Allowed to use for authorization domain yandex.ru'))
         return redirect(settings.LOGIN_URL)
 
-    request.session["oauth"]["email"] = email
-
     # Check login
     user = str(user).replace(".", "_")
     if not models.User.objects.filter(username=user).exists():
-        request.session["oauth"]["username"] = user
+        session["oauth"]["username"] = user
     else:
-        request.session["oauth"]["username"] = "{user}#yandex".format(user=user)
+        session["oauth"]["username"] = None
+
+    session["oauth"]["email"] = email
 
     dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
-    request.session["oauth"]["expires_in"] = dt.isoformat()
+    session["oauth"]["expires_in"] = dt.isoformat()
+    session["oauth"]['module'] = __name__
+    session.create()
 
-    return redirect(reverse(views.oauth_completion))
+    return redirect(reverse(views.oauth_completion, kwargs={'data': session.session_key}))
 
 
 def oauth_google(request: WSGIRequest):
@@ -436,13 +442,10 @@ def oauth_facebook(request: WSGIRequest):
 
 
 def oauth_completion(request: WSGIRequest, data: converters.OAuth):
-    oauth = request.session.get('oauth')
-    del request.session['oauth']
-    pprint(oauth)
+    #oauth = request.session.get('oauth')
+    #del request.session['oauth']
 
-    if not oauth:
-        messages.error(request, _('Maybe your account has already been activated'))
-        return redirect(settings.LOGIN_URL)
+    #print(data.server)
 
     return render(request, 'django_tasker_account/oauth_completion.html', {'form': forms.OAuth()})
 
