@@ -377,6 +377,74 @@ def oauth_vk(request: WSGIRequest):
     return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
 
 
+def oauth_mailru(request: WSGIRequest):
+    client_id = getattr(settings, 'OAUTH_MAILRU_CLIENT_ID', os.environ.get('OAUTH_MAILRU_CLIENT_ID'))
+    client_secret = getattr(settings, 'OAUTH_MAILRU_SECRET_KEY', os.environ.get('OAUTH_MAILRU_SECRET_KEY'))
+
+    if not client_id:
+        logger.error(_("Application OAuth Mail.ru is disabled"))
+        messages.error(request, _("Application OAuth Mail.ru is disabled"))
+        return redirect('/')
+
+    redirect_uri = "{shema}://{host}{path}".format(
+        shema=request.META.get('HTTP_X_FORWARDED_PROTO', request.scheme),
+        host=request.get_host(),
+        path=request.path,
+    )
+
+    if not request.GET.get('code'):
+        params = {
+            'client_id': client_id,
+            'redirect_uri': redirect_uri,
+            'response_type': 'code',
+            'scope': 'userinfo',
+            'state': request.GET.get('next', '/'),
+        }
+
+        return redirect('https://oauth.mail.ru/login?' + urlencode(params))
+
+    data = {
+        'grant_type': 'authorization_code',
+        'code': request.GET.get('code'),
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+    }
+    response = requests.post('https://oauth.mail.ru/token', data=data)
+    json = response.json()
+    print(json)
+
+    response_info = requests.get('https://oauth.mail.ru/userinfo', params={'access_token': json.get('access_token')})
+    json_info = response_info.json()
+    print(json_info)
+
+    session_store = import_module(settings.SESSION_ENGINE).SessionStore
+    session = session_store()
+
+    m = hashlib.sha256()
+    m.update(str(json_info.get('email')).encode("utf-8"))
+
+    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
+
+    session["oauth"] = {
+        'provider': 3,
+        'id': m.hexdigest(),
+        'access_token': json.get('access_token'),
+        'birth_date': None, #
+        'last_name': json_info.get('last_name'),
+        'first_name': json_info.get('first_name'),
+        'email': json_info.get('email'),
+        'username': None,
+        'avatar': json_info.get('image'),
+        'expires_in': dt.isoformat(),
+        'module': __name__,
+    }
+    session.create()
+    return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
+
+
+
+
 def oauth_facebook(request: WSGIRequest):
     client_id = getattr(settings, 'OAUTH_FACEBOOK_CLIENT_ID', os.environ.get('OAUTH_FACEBOOK_CLIENT_ID'))
     client_secret = getattr(settings, 'OAUTH_FACEBOOK_SECRET_KEY', os.environ.get('OAUTH_FACEBOOK_SECRET_KEY'))
@@ -448,7 +516,6 @@ def oauth_facebook(request: WSGIRequest):
 
 
 def oauth_completion(request: WSGIRequest, data: converters.OAuth):
-
     if request.method == 'POST':
         form = forms.OAuth(data=request.POST)
         if form.is_valid():
@@ -521,7 +588,6 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
 
 # Update user and profile
 def _oauth_update_user(user: User, data: converters.OAuth) -> None:
-
     flag_save_profile = False
     flag_save_user = False
 
@@ -556,7 +622,6 @@ def _oauth_update_user(user: User, data: converters.OAuth) -> None:
 
 # Link with the model Oauth
 def _link_oauth(user: User, data: converters.OAuth) -> None:
-
     models.Oauth.objects.create(
         oauth_id=data.id,
         provider=data.provider,
