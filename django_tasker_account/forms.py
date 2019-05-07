@@ -345,4 +345,3 @@ class OAuth(forms.Form):
             validators.username_dublicate,
         ]
     )
-

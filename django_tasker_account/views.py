@@ -20,7 +20,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from email_validator import validate_email
 
-from . import forms, geobase, converters, views, models
+from . import forms, geobase, converters, models
 
 logger = logging.getLogger('tasker_account')
 
@@ -189,7 +189,7 @@ def oauth_google(request: WSGIRequest):
         session["oauth"]["email"] = email
 
     session.create()
-    return redirect(reverse(views.oauth_completion, kwargs={'data': session.session_key}))
+    return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
 
 
 def oauth_yandex(request: WSGIRequest):
@@ -297,7 +297,7 @@ def oauth_yandex(request: WSGIRequest):
     session["oauth"]["email"] = email
     session.create()
 
-    return redirect(reverse(views.oauth_completion, kwargs={'data': session.session_key}))
+    return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
 
 
 def oauth_vk(request: WSGIRequest):
@@ -375,7 +375,7 @@ def oauth_vk(request: WSGIRequest):
             session["oauth"]["username"] = user
 
     session.create()
-    return redirect(reverse(views.oauth_completion, kwargs={'data': session.session_key}))
+    return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
 
 
 def oauth_facebook(request: WSGIRequest):
@@ -445,14 +445,36 @@ def oauth_facebook(request: WSGIRequest):
         'module': __name__,
     }
     session.create()
-    return redirect(reverse(views.oauth_completion, kwargs={'data': session.session_key}))
+    return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
 
 
 def oauth_completion(request: WSGIRequest, data: converters.OAuth):
+
+    if request.method == 'POST':
+        form = forms.OAuth(data=request.POST)
+        if form.is_valid():
+            user = User.objects.create_user(
+                username=form.cleaned_data.get('username'),
+                email=data.email,
+            )
+            _oauth_update_user(user=user, data=data)
+            _link_oauth(user=user, data=data)
+            data.session.delete()
+
+            # save geobase
+            user.profile.geobase = geobase.detect_ip(query=request)
+            user.profile.save()
+
+            auth.login(request, user)
+            return redirect(data.next)
+
+        return render(request, 'django_tasker_account/oauth_completion.html', {'form': form}, status=400)
+
     # If the user is already registered through OAuth
     result = models.Oauth.objects.filter(oauth_id=data.id, provider=data.provider)
     if result.exists():
         user = result.get(oauth_id=data.id, provider=data.provider).user
+        _oauth_update_user(user=user, data=data)
         auth.login(request, user)
         return redirect(data.next)
 
@@ -461,9 +483,13 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
         user = models.User.objects.filter(email=data.email)
         if user.exists():
             user = user.last()
-
+            _oauth_update_user(user=user, data=data)
             _link_oauth(user=user, data=data)
             data.session.delete()
+
+            # save geobase
+            user.profile.geobase = geobase.detect_ip(query=request)
+            user.profile.save()
 
             # Authentication
             auth.login(request, user)
@@ -478,9 +504,13 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
                 last_name=data.last_name,
                 first_name=data.first_name,
             )
-
+            _oauth_update_user(user=user, data=data)
             _link_oauth(user=user, data=data)
             data.session.delete()
+
+            # save geobase
+            user.profile.geobase = geobase.detect_ip(query=request)
+            user.profile.save()
 
             # Authentication
             auth.login(request, user)
@@ -489,106 +519,9 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
     form = forms.OAuth(initial={'username': data.username})
     return render(request, 'django_tasker_account/oauth_completion.html', {'form': form})
 
-    # if not user:
-    #    user = User.objects.create_user(
-    #        username=data.username,
-    #        email=oauth.get('email'),
-    #        first_name=oauth.get('first_name'),
-    #        last_name=oauth.get('last_name')
-    #    )
-    #    user.save(
 
-    # m = hashlib.sha512()
-    # m.update(oauth.get('id').encode("utf-8"))
-    #
-    #
-    # result = models.Oauth.objects.filter(oauth_id=m.hexdigest(), server=oauth.get('server'))
-    # if result.exists():
-    #     user = result.get(oauth_id=m.hexdigest(), server=oauth.get('server')).user
-    #     auth.login(request, user)
-    #
-    #     if oauth.get('gender') and not user.profile.gender:
-    #         user.profile.gender = oauth.get('gender')
-    #         user.profile.save()
-    #
-    #     if oauth.get('birth_date') and not user.profile.birth_date:
-    #         user.profile.birth_date = oauth.get('birth_date')
-    #         user.profile.save()
-    #
-    #     if oauth.get('avatar') and not user.profile.avatar:
-    #         response = requests.get(oauth.get('avatar'))
-    #         if response.status_code == 200:
-    #             user.profile.avatar.save('avatar.png', ContentFile(response.content))
-    #
-    #     if not user.profile.geobase:
-    #         user.profile.geobase = geobase.detect_ip(query=request)
-    #         user.profile.save()
-    #
-    #     return redirect(oauth.get('next', '/'))
-    #
-    # # If the email user is the same as the account already registered
-    # user = None
-    # if oauth.get('email'):
-    #     user = models.User.objects.filter(email=oauth.get('email'))
-    #     if user.exists():
-    #         user = user.last()
-    #
-    # if not user:
-    #     # Registration user
-    #
-    #     if not models.User.objects.filter(username=oauth.get('username')).exists():
-    #         raise Exception("Username is exists")
-    #
-    #     user = User.objects.create_user(
-    #         username=oauth.get('username'),
-    #         email=oauth.get('email'),
-    #         first_name=oauth.get('first_name'),
-    #         last_name=oauth.get('last_name')
-    #     )
-    #     user.save()
-    #
-    # # Link with the model Oauth
-    # models.Oauth.objects.create(
-    #     oauth_id=m.hexdigest(),
-    #     server=oauth.get('server'),
-    #     access_token=oauth.get('access_token'),
-    #     refresh_token=oauth.get('refresh_token'),
-    #     expires_in=oauth.get('expires_in'),
-    #     user=user,
-    # )
-    #
-    # # Authentication
-    # auth.login(request, user)
-    #
-    # if oauth.get('gender') and not user.profile.gender:
-    #     user.profile.gender = oauth.get('gender')
-    #     user.profile.save()
-    #
-    # if oauth.get('birth_date') and not user.profile.birth_date:
-    #     user.profile.birth_date = oauth.get('birth_date')
-    #     user.profile.save()
-    #
-    # if oauth.get('avatar') and not user.profile.avatar:
-    #     response = requests.get(oauth.get('avatar'))
-    #     if response.status_code == 200:
-    #         user.profile.avatar.save('avatar.png', ContentFile(response.content))
-    #
-    # if oauth.get('last_name') and not user.last_name:
-    #     user.last_name = oauth.get('last_name')
-    #     user.save()
-    #
-    # if oauth.get('first_name') and not user.first_name:
-    #     user.last_name = oauth.get('first_name')
-    #     user.save()
-    #
-    # user.profile.geobase = geobase.detect_ip(query=request)
-    # user.profile.save()
-    #
-    # return redirect(oauth.get('next', '/'))
-
-
-# Link with the model Oauth
-def _link_oauth(user: User, data: converters.OAuth) -> None:
+# Update user and profile
+def _oauth_update_user(user: User, data: converters.OAuth) -> None:
 
     flag_save_profile = False
     flag_save_user = False
@@ -620,6 +553,10 @@ def _link_oauth(user: User, data: converters.OAuth) -> None:
 
     if flag_save_user:
         user.save()
+
+
+# Link with the model Oauth
+def _link_oauth(user: User, data: converters.OAuth) -> None:
 
     models.Oauth.objects.create(
         oauth_id=data.id,
