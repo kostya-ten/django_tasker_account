@@ -299,84 +299,6 @@ def oauth_yandex(request: WSGIRequest):
     return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
 
 
-def oauth_vk(request: WSGIRequest):
-    client_id = getattr(settings, 'OAUTH_VK_CLIENT_ID', os.environ.get('OAUTH_VK_CLIENT_ID'))
-    client_secret = getattr(settings, 'OAUTH_VK_SECRET_KEY', os.environ.get('OAUTH_VK_SECRET_KEY'))
-
-    if not client_id:
-        logger.error(_("Application OAuth Vk.com is disabled"))
-        messages.error(request, _("Application OAuth Vk.com is disabled"))
-        return redirect('/')
-
-    redirect_uri = "{shema}://{host}{path}".format(
-        shema=request.META.get('HTTP_X_FORWARDED_PROTO', request.scheme),
-        host=request.get_host(),
-        path=request.path,
-    )
-
-    if not request.GET.get('code'):
-        params = {
-            'client_id': client_id,
-            'redirect_uri': redirect_uri,
-            'response_type': 'code',
-            'state': request.GET.get('next', '/'),
-        }
-
-        redirect_url = "https:///oauth.vk.com/authorize?{param}".format(param=urlencode(params))
-        return redirect(redirect_url)
-
-    data = {
-        'grant_type': 'authorization_code',
-        'code': request.GET.get('code'),
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'redirect_uri': redirect_uri,
-    }
-
-    response = requests.post('https://oauth.vk.com/access_token', data=data)
-    json = response.json()
-
-    response_info = requests.post('https://api.vk.com/method/users.get', data={
-        'user_ids': json.get('user_id'),
-        'fields': 'first_name,last_name,bdate,photo_200,screen_name',
-        'access_token': json.get('access_token'),
-        'v': '5.95',
-    })
-    json_info = response_info.json()
-    json_info = json_info.get('response').pop()
-
-    session_store = import_module(settings.SESSION_ENGINE).SessionStore
-    session = session_store()
-
-    m = hashlib.sha256()
-    m.update(str(json.get('user_id')).encode("utf-8"))
-
-    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
-
-    session["oauth"] = {
-        'provider': 4,
-        'id': m.hexdigest(),
-        'access_token': json.get('access_token'),
-        'birth_date': json_info.get('birthday'),
-        'last_name': json_info.get('last_name'),
-        'first_name': json_info.get('first_name'),
-        'email': None,
-        'gender': None,
-        'avatar': json_info.get('photo_200'),
-        'username': None,
-        'expires_in': dt.isoformat(),
-        'module': __name__,
-    }
-
-    if not re.match(r'^id[0-9]+', json_info.get('screen_name')):
-        user = json_info.get('screen_name').replace(".", "_")
-        if not models.User.objects.filter(username=user).exists():
-            session["oauth"]["username"] = user
-
-    session.create()
-    return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
-
-
 def oauth_mailru(request: WSGIRequest):
     client_id = getattr(settings, 'OAUTH_MAILRU_CLIENT_ID', os.environ.get('OAUTH_MAILRU_CLIENT_ID'))
     client_secret = getattr(settings, 'OAUTH_MAILRU_SECRET_KEY', os.environ.get('OAUTH_MAILRU_SECRET_KEY'))
@@ -467,6 +389,84 @@ def oauth_mailru(request: WSGIRequest):
 
     session.create()
 
+    return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
+
+
+def oauth_vk(request: WSGIRequest):
+    client_id = getattr(settings, 'OAUTH_VK_CLIENT_ID', os.environ.get('OAUTH_VK_CLIENT_ID'))
+    client_secret = getattr(settings, 'OAUTH_VK_SECRET_KEY', os.environ.get('OAUTH_VK_SECRET_KEY'))
+
+    if not client_id:
+        logger.error(_("Application OAuth Vk.com is disabled"))
+        messages.error(request, _("Application OAuth Vk.com is disabled"))
+        return redirect('/')
+
+    redirect_uri = "{shema}://{host}{path}".format(
+        shema=request.META.get('HTTP_X_FORWARDED_PROTO', request.scheme),
+        host=request.get_host(),
+        path=request.path,
+    )
+
+    if not request.GET.get('code'):
+        params = {
+            'client_id': client_id,
+            'redirect_uri': redirect_uri,
+            'response_type': 'code',
+            'state': request.GET.get('next', '/'),
+        }
+
+        redirect_url = "https:///oauth.vk.com/authorize?{param}".format(param=urlencode(params))
+        return redirect(redirect_url)
+
+    data = {
+        'grant_type': 'authorization_code',
+        'code': request.GET.get('code'),
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+    }
+
+    response = requests.post('https://oauth.vk.com/access_token', data=data)
+    json = response.json()
+
+    response_info = requests.post('https://api.vk.com/method/users.get', data={
+        'user_ids': json.get('user_id'),
+        'fields': 'first_name,last_name,bdate,photo_200,screen_name',
+        'access_token': json.get('access_token'),
+        'v': '5.95',
+    })
+    json_info = response_info.json()
+    json_info = json_info.get('response').pop()
+
+    session_store = import_module(settings.SESSION_ENGINE).SessionStore
+    session = session_store()
+
+    m = hashlib.sha256()
+    m.update(str(json.get('user_id')).encode("utf-8"))
+
+    dt = datetime.now(timezone.utc) + timedelta(seconds=json.get('expires_in'))
+
+    session["oauth"] = {
+        'provider': 4,
+        'id': m.hexdigest(),
+        'access_token': json.get('access_token'),
+        'birth_date': json_info.get('birthday'),
+        'last_name': json_info.get('last_name'),
+        'first_name': json_info.get('first_name'),
+        'email': None,
+        'gender': None,
+        'avatar': json_info.get('photo_200'),
+        'username': None,
+        'expires_in': dt.isoformat(),
+        'module': __name__,
+    }
+
+    if not re.match(r'^id[0-9]+', json_info.get('screen_name')):
+        user = json_info.get('screen_name').replace(".", "_")
+        if not models.User.objects.filter(username=user).exists():
+            session["oauth"]["username"] = user
+
+    session.create()
     return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
 
 
