@@ -52,6 +52,7 @@ def signup(request: WSGIRequest):
 
 
 def confirm_email(request: WSGIRequest, data: converters.ConfirmEmail):
+    """View for confirmation email address"""
     form = forms.Signup(data={
         'username': data.username,
         'last_name': data.last_name,
@@ -78,6 +79,7 @@ def confirm_email(request: WSGIRequest, data: converters.ConfirmEmail):
 
 
 def forgot_password(request: WSGIRequest):
+    """View forgot password"""
     if request.method == 'GET':
         return render(request, "django_tasker_account/forgot_password.html", {'form': forms.ForgotPassword()})
 
@@ -91,6 +93,7 @@ def forgot_password(request: WSGIRequest):
 
 
 def change_password(request: WSGIRequest, data: converters.ChangePassword):
+    """Password change view"""
     if request.method == 'GET':
         form = forms.ChangePassword(user=data.user_id)
         return render(request, "django_tasker_account/change_password.html", {'form': form})
