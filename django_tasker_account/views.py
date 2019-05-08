@@ -170,7 +170,8 @@ def oauth_google(request: WSGIRequest):
         'first_name': json_info.get('given_name'),
         'username': None,
         'module': __name__,
-        'expires_in': dt.isoformat()
+        'expires_in': dt.isoformat(),
+        'next': request.GET.get('state')
     }
 
     if json_info.get('verified_email'):
@@ -255,6 +256,7 @@ def oauth_yandex(request: WSGIRequest):
         'first_name': json_info.get('first_name'),
         'expires_in': dt.isoformat(),
         'module': __name__,
+        'next': request.GET.get('state')
     }
 
     if not json_info.get('is_avatar_empty'):
@@ -334,11 +336,9 @@ def oauth_mailru(request: WSGIRequest):
     }
     response = requests.post('https://oauth.mail.ru/token', data=data)
     json = response.json()
-    print(json)
 
     response_info = requests.get('https://oauth.mail.ru/userinfo', params={'access_token': json.get('access_token')})
     json_info = response_info.json()
-    print(json_info)
 
     session_store = import_module(settings.SESSION_ENGINE).SessionStore
     session = session_store()
@@ -360,6 +360,7 @@ def oauth_mailru(request: WSGIRequest):
         'avatar': json_info.get('image'),
         'expires_in': dt.isoformat(),
         'module': __name__,
+        'next': request.GET.get('state')
     }
 
     if json_info.get('gender') == 'm':
@@ -459,6 +460,7 @@ def oauth_vk(request: WSGIRequest):
         'username': None,
         'expires_in': dt.isoformat(),
         'module': __name__,
+        'next': request.GET.get('state')
     }
 
     if not re.match(r'^id[0-9]+', json_info.get('screen_name')):
@@ -535,6 +537,7 @@ def oauth_facebook(request: WSGIRequest):
         'avatar': picture,
         'expires_in': dt.isoformat(),
         'module': __name__,
+        'next': request.GET.get('state')
     }
     session.create()
     return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
