@@ -90,7 +90,7 @@ def email(email: str) -> str:
     try:
         validate_email(email)
     except EmailNotValidError:
-        raise ValidationError(_("Email address is not valid"))
+        raise ValidationError(_("Enter a valid email address."))
 
     return email
 

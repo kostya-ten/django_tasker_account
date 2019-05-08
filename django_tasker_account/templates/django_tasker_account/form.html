@@ -1,36 +1,42 @@
-<form method="POST" method="{{ method|default:"post" }}" enctype="{{ enctype|default:"application/x-www-form-urlencoded" }}">
+{% load i18n %}
+<form class="form-signin" method="{{ method|default:"POST" }}" enctype="{{ enctype|default:"application/x-www-form-urlencoded" }}">
     {% csrf_token %}
+    <div class="text-center mb-4">
+        <h1 class="h3 mb-3 font-weight-normal">{% trans title %}</h1>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
 
     {% if form.non_field_errors %}
         <div class="form-group">
             {% for error in form.non_field_errors %}
-                <div class="alert alert-danger" role="alert">{{ error }}</div><br>
+                <div class="alert alert-danger" role="alert">{{ error }}</div>
             {% endfor %}
         </div>
     {% endif %}
 
     {% for field in form %}
-        <div class="form-group">
-            {% if field.field.widget.input_type == 'checkbox' %}
-                <div class="checkbox">
-                    <label>
-                        {{ field }} {{ field.label }}
-                    </label>
-                </div>
-            {% else %}
-                <label for="{{ field.auto_id }}">{{ field.label }}</label>
+        {% if field.field.widget.input_type == 'checkbox' %}
+            <div class="checkbox mb-3">
+                <label>
+                    {{ field }} {{ field.label }}
+                </label>
+            </div>
+        {% else %}
+            <div class="form-label-group">
                 {{ field }}
-            {% endif %}
-
-
-            {% if field.help_text %}
-                <small>{{ field.help_text }}</small>
-            {% endif %}
-
-            {% for error in field.errors %}
-                <p class="text-danger">{{ error }}</p>
-            {% endfor %}
-        </div>
+                <label for="{{ field.auto_id }}">{{ field.label }}</label>
+                {% for error in field.errors %}
+                    <small id="{{ field.auto_id }}" class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+            </div>
+        {% endif %}
     {% endfor %}
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">{% trans button %}</button>
+
+    <p class="mt-5 mb-3 text-muted text-center">&copy; Django Tasker Account 2019</p>
 </form>
