@@ -430,7 +430,7 @@ def oauth_mailru(request: WSGIRequest):
         'provider': 3,
         'id': m.hexdigest(),
         'access_token': json.get('access_token'),
-        'birth_date': None, #
+        'birth_date': None,
         'last_name': json_info.get('last_name'),
         'first_name': json_info.get('first_name'),
         'email': json_info.get('email'),
@@ -439,10 +439,35 @@ def oauth_mailru(request: WSGIRequest):
         'expires_in': dt.isoformat(),
         'module': __name__,
     }
+
+    if json_info.get('gender') == 'm':
+        session["oauth"]["gender"] = 1
+    elif json_info.get('gender') == 'f':
+        session["oauth"]["gender"] = 2
+    else:
+        session["oauth"]["gender"] = None
+
+    email = json_info.get('email').strip().lower()
+    user = email.rsplit('@', 1)[0]
+    domain = email.rsplit('@', 1)[-1]
+
+    if domain != 'mail.ru' and domain != 'bk.ru' and domain != 'list.ru' and domain != 'inbox.ru':
+        messages.error(request, _('Allowed to use for authorization domain mail.ru, bk.ru, list.ru, inbox.ru'))
+        return redirect(settings.LOGIN_URL)
+
+    # Check login
+    user = str(user).replace(".", "_")
+    if not models.User.objects.filter(username=user).exists():
+        session["oauth"]["username"] = user
+    else:
+        session["oauth"]["username"] = None
+
+    session["oauth"]["email"] = email
+    session["oauth"]["birth_date"] = datetime.strptime(json_info.get('birthday'), "%d.%m.%Y").strftime("%Y-%m-%d")
+
     session.create()
+
     return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
-
-
 
 
 def oauth_facebook(request: WSGIRequest):
