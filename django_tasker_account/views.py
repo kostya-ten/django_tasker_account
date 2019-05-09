@@ -43,7 +43,7 @@ def logout(request: WSGIRequest):
         logger.info("Logout user username:{username}".format(username=request.user.username))
         auth.logout(request)
 
-    return redirect(request.GET.get('next', '/'))
+    return redirect(settings.LOGOUT_REDIRECT_URL)
 
 
 def signup(request: WSGIRequest):
