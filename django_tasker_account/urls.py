@@ -7,6 +7,7 @@ register_converter(converters.OAuth, 'oauth')
 
 urlpatterns = [
     path('login/', views.login),
+    path('logout/', views.logout),
     path('signup/', views.signup),
     path('forgot_password/', views.forgot_password),
     path('confirm/email/<confirm_email:data>/', views.confirm_email),

@@ -37,6 +37,11 @@ def login(request: WSGIRequest):
     return render(request, 'django_tasker_account/login.html', {'form': form}, status=400)
 
 
+def logout(request):
+    auth.logout(request)
+    return redirect(request.GET.get('next', '/'))
+
+
 def signup(request: WSGIRequest):
     """View for user registration"""
     if request.method == 'GET':
