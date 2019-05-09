@@ -32,13 +32,17 @@ def login(request: WSGIRequest):
     form = forms.Login(data=request.POST, request=request)
     if form.is_valid():
         form.login()
+        logger.info("Login user username:{username}".format(username=request.user.username))
         return redirect(request.GET.get('next', settings.LOGIN_REDIRECT_URL))
 
     return render(request, 'django_tasker_account/login.html', {'form': form}, status=400)
 
 
-def logout(request):
-    auth.logout(request)
+def logout(request: WSGIRequest):
+    if request.user.is_authenticated:
+        logger.info("Logout user username:{username}".format(username=request.user.username))
+        auth.logout(request)
+
     return redirect(request.GET.get('next', '/'))
 
 
@@ -215,6 +219,11 @@ def oauth_yandex(request: WSGIRequest):
         path=request.path,
     )
 
+    if request.GET.get('error'):
+        logger.error(_("User denied access to data"))
+        messages.error(request, _("User denied access to data"))
+        return redirect(settings.LOGIN_URL)
+
     if not request.GET.get('code'):
         params = {
             'client_id': client_id,
@@ -323,6 +332,11 @@ def oauth_mailru(request: WSGIRequest):
         host=request.get_host(),
         path=request.path,
     )
+
+    if request.GET.get('error'):
+        logger.error(_("User denied access to data"))
+        messages.error(request, _("User denied access to data"))
+        return redirect(settings.LOGIN_URL)
 
     if not request.GET.get('code'):
         params = {
