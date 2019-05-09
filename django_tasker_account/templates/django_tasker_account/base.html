@@ -16,6 +16,30 @@
         <link rel="stylesheet" href="https://d1azc1qln24ryf.cloudfront.net/114779/Socicon/style-cf.css?u8vidh">
     </head>
     <body>
-        {% block form %}{% endblock %}
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    {% block form %}{% endblock %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <p class="mt-6 mb-3 text-muted text-center">
+                        <a href="/accounts/oauth/google/" class="btn btn-outline-primary">Google</a>
+                        <a href="/accounts/oauth/yandex/" class="btn btn-outline-primary">Yandex</a>
+                        <a href="/accounts/oauth/mailru/" class="btn btn-outline-primary">Mail.ru</a>
+                    </p>
+
+                    <p class="mt-6 mb-3 text-muted text-center">
+                        <a href="/accounts/oauth/facebook/" class="btn btn-outline-primary">Facebook</a>
+                        <a href="/accounts/oauth/vk/" class="btn btn-outline-primary">VK.com</a>
+                    </p>
+                    <p class="mt-5 mb-3 text-muted text-center">&copy; Django Tasker Account {{ YEAR }}</p>
+                </div>
+            </div>
+
+        </div>
+
     </body>
 </html>
