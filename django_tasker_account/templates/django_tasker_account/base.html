@@ -1,3 +1,4 @@
+{% load i18n %}
 <!doctype html>
 <html lang="en">
     <head>
@@ -17,12 +18,31 @@
     </head>
     <body>
         <div class="container">
+            {% if request.user.is_authenticated %}
+            <div class="row">
+                <ul class="nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'django_tasker_account:profile' %}">{% trans "Personal info" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'django_tasker_account:profile_change_password' %}">{% trans "Change password" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'django_tasker_account:logout' %}">{% trans "Log out" %}</a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+
             <div class="row">
                 <div class="col">
                     {% block form %}{% endblock %}
+
                 </div>
             </div>
 
+            {% if not request.user.is_authenticated %}
+            <hr>
             <div class="row">
                 <div class="col">
                     <p class="mt-6 mb-3 text-muted text-center">
@@ -38,6 +58,7 @@
                     <p class="mt-5 mb-3 text-muted text-center">&copy; Django Tasker Account {{ YEAR }}</p>
                 </div>
             </div>
+            {% endif %}
 
         </div>
 

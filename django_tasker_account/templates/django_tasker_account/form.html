@@ -1,4 +1,5 @@
 {% load i18n %}
+
 <form class="form-signin" method="{{ method|default:"POST" }}" enctype="{{ enctype|default:"application/x-www-form-urlencoded" }}">
     {% csrf_token %}
     <div class="text-center mb-4">
@@ -26,21 +27,21 @@
 
     {% for field in form %}
         {% if field.field.widget.input_type == 'checkbox' %}
-            <div class="checkbox mb-3">
-                <label>
-                    {{ field }} {{ field.label }}
-                </label>
+            <div class="form-group form-check">
+                {{ field }}
+                <label class="form-check-label" for="{{ field.auto_id }}">{{ field.label|capfirst }}</label>
             </div>
         {% else %}
-            <div class="form-label-group">
+            <div class="form-group">
+                <label for="{{ field.auto_id }}">{{ field.label|capfirst }}</label>
                 {{ field }}
-                <label for="{{ field.auto_id }}">{{ field.label }}</label>
                 {% for error in field.errors %}
                     <small id="{{ field.auto_id }}" class="form-text text-danger">{{ error }}</small>
                 {% endfor %}
+
+                <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
             </div>
         {% endif %}
     {% endfor %}
-    <button class="btn btn-lg btn-primary btn-block" type="submit">{% trans button %}</button>
-
+    <button type="submit" class="btn btn-primary">{% trans button %}</button>
 </form>

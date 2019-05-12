@@ -8,13 +8,13 @@ from django.conf import settings
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
-from django.forms import TextInput, PasswordInput
+from django.forms import TextInput, PasswordInput, Select, CheckboxInput
 from django.contrib import auth
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
-from . import validators
+from . import validators, models
 logger = logging.getLogger('tasker_account')
 
 
@@ -22,7 +22,7 @@ class Login(AuthenticationForm):
     username = forms.CharField(
         widget=TextInput(
             attrs={
-                'class': getattr(settings, 'HTML_INPUT_CLASS', 'form-control'),
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
                 'autocomplete': 'username',
                 'placeholder': _('Username')
             }
@@ -32,14 +32,22 @@ class Login(AuthenticationForm):
     password = forms.CharField(
         widget=PasswordInput(
             attrs={
-                'class': getattr(settings, 'HTML_INPUT_CLASS', 'form-control'),
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
                 'autocomplete': 'current-password',
                 'placeholder': _('Password')
             }
         )
     )
 
-    remember = forms.BooleanField(required=False)
+    remember = forms.BooleanField(
+        required=False,
+        widget=CheckboxInput(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_CHECK_INPUT_CLASS', 'form-check-input'),
+            }
+        )
+
+    )
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -345,3 +353,89 @@ class OAuth(forms.Form):
             validators.username_dublicate,
         ]
     )
+
+
+class Profile(forms.Form):
+    GENDER = [
+        (1, _('Male')),
+        (2, _('Female')),
+    ]
+
+    last_name = forms.CharField(
+        widget=TextInput(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+                'autocomplete': 'off',
+                'placeholder': _('last name')
+            },
+        ),
+        label=_('last name'),
+    )
+
+    first_name = forms.CharField(
+        widget=TextInput(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+                'autocomplete': 'off',
+                'placeholder': _('first name')
+            }
+        ),
+        label=_('first name'),
+    )
+
+    gender = forms.ChoiceField(
+        choices=GENDER,
+        widget=Select(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+            }
+        ),
+        label=_('gender'),
+    )
+
+    birth_date = forms.DateField(
+        widget=TextInput(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+                'type': 'date',
+                'placeholder': _('Birth date')
+            }
+        ),
+        label=_('Birth date'),
+    )
+
+    language = forms.ChoiceField(
+        choices=settings.LANGUAGES,
+        widget=Select(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+            }
+        ),
+        label=_('language'),
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
+    def save(self):
+        user = get_object_or_404(User, id=self.request.user.id)
+        user.first_name = self.cleaned_data.get('first_name')
+        user.last_name = self.cleaned_data.get('last_name')
+        user.save()
+
+        profile = get_object_or_404(models.Profile, user=self.request.user)
+        profile.language = self.cleaned_data.get('language')
+        profile.birth_date = self.cleaned_data.get('birth_date')
+        profile.gender = self.cleaned_data.get('gender')
+        profile.save()
+
+        logger.info("User profile update id:{id}, first_name:{first_name}, last_name:{last_name}, language:{language}, "
+                    "birth_date:{birth_date}, gender:{gender}".format(
+            id=self.request.user.id,
+            first_name=self.cleaned_data.get('first_name'),
+            last_name=self.cleaned_data.get('last_name'),
+            language=self.cleaned_data.get('language'),
+            birth_date=self.cleaned_data.get('birth_date'),
+            gender=self.cleaned_data.get('gender'),
+        ))

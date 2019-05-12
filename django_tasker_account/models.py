@@ -84,17 +84,11 @@ class Geobase(models.Model):
 
 
 class Profile(models.Model):
-    LANGUAGES = [
-        ('en-US', 'English'),
-    ]
 
     GENDER = [
         (1, _('Male')),
         (2, _('Female')),
     ]
-
-    if settings.LANGUAGES:
-        LANGUAGES = settings.LANGUAGES
 
     user = models.OneToOneField(
         User,
@@ -104,7 +98,7 @@ class Profile(models.Model):
 
     language = models.CharField(
         max_length=5,
-        choices=LANGUAGES,
+        choices=settings.LANGUAGES,
         verbose_name=_("Language"),
         default=get_supported_language_variant(getattr(settings, 'LANGUAGE_CODE', 'en-US'), strict=False)
     )

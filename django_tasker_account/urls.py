@@ -5,9 +5,11 @@ register_converter(converters.ConfirmEmail, 'confirm_email')
 register_converter(converters.ChangePassword, 'change_password')
 register_converter(converters.OAuth, 'oauth')
 
+app_name = 'django_tasker_account'
+
 urlpatterns = [
     path('login/', views.login),
-    path('logout/', views.logout),
+    path('logout/', views.logout, name="logout"),
     path('signup/', views.signup),
     path('forgot_password/', views.forgot_password),
     path('confirm/email/<confirm_email:data>/', views.confirm_email),
@@ -19,4 +21,7 @@ urlpatterns = [
     path('oauth/facebook/', views.oauth_facebook),
     path('oauth/mailru/', views.oauth_mailru),
     path('oauth/completion/<oauth:data>/', views.oauth_completion, name="oauth_completion"),
+
+    path('profile/', views.profile, name="profile"),
+    path('profile/change/password/', views.profile_change_password, name="profile_change_password"),
 ]

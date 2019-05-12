@@ -10,6 +10,7 @@ from urllib.parse import urlencode
 from datetime import datetime, timedelta, timezone
 
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.handlers.wsgi import WSGIRequest
@@ -38,12 +39,14 @@ def login(request: WSGIRequest):
     return render(request, 'django_tasker_account/login.html', {'form': form}, status=400)
 
 
+# NO TEST
 def logout(request: WSGIRequest):
     if request.user.is_authenticated:
         logger.info("Logout user username:{username}".format(username=request.user.username))
         auth.logout(request)
 
-    return redirect(settings.LOGOUT_REDIRECT_URL)
+    return redirect('/')
+    # return redirect(settings.LOGOUT_REDIRECT_URL)
 
 
 def signup(request: WSGIRequest):
@@ -565,6 +568,30 @@ def oauth_facebook(request: WSGIRequest):
     return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
 
 
+@login_required()
+def profile(request: WSGIRequest):
+    if request.method == 'POST':
+        form = forms.Profile(data=request.POST, request=request)
+        if form.is_valid():
+            form.save()
+            return render(request, "django_tasker_account/profile.html", {'form': form})
+        else:
+            return render(request, "django_tasker_account/profile.html", {'form': form}, status=400)
+
+    user = request.user
+    form = forms.Profile(
+        initial={
+            'last_name': user.last_name,
+            'first_name': user.first_name,
+            'gender': user.profile.gender,
+            'birth_date': user.profile.birth_date,
+            'language': user.profile.language,
+        }
+    )
+    return render(request, "django_tasker_account/profile.html", {'form': form})
+
+
+# NO TEST
 def oauth_completion(request: WSGIRequest, data: converters.OAuth):
     if request.method == 'POST':
         form = forms.OAuth(data=request.POST)
@@ -635,6 +662,10 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
     form = forms.OAuth(initial={'username': data.username})
     return render(request, 'django_tasker_account/oauth_completion.html', {'form': form})
 
+
+@login_required()
+def profile_change_password(request: WSGIRequest):
+    pass
 
 # Update user and profile
 def _oauth_update_user(user: User, data: converters.OAuth) -> None:
