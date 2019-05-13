@@ -1,4 +1,10 @@
 {% extends "django_tasker_account/base.html" %}
+{% load i18n %}
 {% block form %}
     {% include "django_tasker_account/form.html" with button="Log in" title="Log in" %}
+
+    <div class="row form-signin">
+        <a href="{% url 'django_tasker_account:forgot_password' %}">{% trans "Password reset" %}</a>
+    </div>
+
 {% endblock %}

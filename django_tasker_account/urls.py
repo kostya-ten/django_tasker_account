@@ -11,7 +11,7 @@ urlpatterns = [
     path('login/', views.login),
     path('logout/', views.logout, name="logout"),
     path('signup/', views.signup),
-    path('forgot_password/', views.forgot_password),
+    path('forgot_password/', views.forgot_password, name="forgot_password"),
     path('confirm/email/<confirm_email:data>/', views.confirm_email),
     path('change/password/<change_password:data>/', views.change_password),
 
