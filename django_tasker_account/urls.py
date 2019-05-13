@@ -24,4 +24,5 @@ urlpatterns = [
 
     path('profile/', views.profile, name="profile"),
     path('profile/change/password/', views.profile_change_password, name="profile_change_password"),
+    path('profile/mylocation/', views.profile_mylocation, name="profile_mylocation"),
 ]

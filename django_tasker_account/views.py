@@ -32,8 +32,8 @@ def login(request: WSGIRequest):
 
     form = forms.Login(data=request.POST, request=request)
     if form.is_valid():
-        form.login()
-        logger.info("Login user username:{username}".format(username=request.user.username))
+        user = form.login()
+        logger.info("Login user username:{username}".format(username=user.username))
         return redirect(request.GET.get('next', settings.LOGIN_REDIRECT_URL))
 
     return render(request, 'django_tasker_account/login.html', {'form': form}, status=400)
@@ -664,7 +664,7 @@ def profile(request: WSGIRequest):
 
 
 @login_required()
-def profile_change_password(request: WSGIRequest):
+def profile_change_password(request: WSGIRequest) -> None:
     if request.method == 'POST':
         form = forms.ChangePassword(data=request.POST, request=request, user=request.user)
         if form.is_valid():
@@ -676,6 +676,34 @@ def profile_change_password(request: WSGIRequest):
 
     form = forms.ChangePassword(user=request.user)
     return render(request, 'django_tasker_account/profile_change_password.html', {'form': form})
+
+
+@login_required()
+def profile_mylocation(request: WSGIRequest) -> None:
+
+    if request.user.profile.language == 'ru':
+        initial_data = "{country}, {locality}".format(
+            country=request.user.profile.geobase.country.ru,
+            locality=request.user.profile.geobase.locality.ru,
+        )
+    else:
+        initial_data = "{country}, {locality}".format(
+            country=request.user.profile.geobase.country.en,
+            locality=request.user.profile.geobase.locality.en,
+        )
+
+    if request.method == 'POST':
+        form = forms.MyLocation(data=request.POST)
+        if form.is_valid():
+            obj = geobase.detect_geo(query=form.cleaned_data.get('location'))
+            request.user.profile.geobase = obj
+            request.user.profile.save()
+            return render(request, 'django_tasker_account/profile_mylocation.html', {'form': form})
+
+        return render(request, 'django_tasker_account/profile_mylocation.html', {'form': form}, status=400)
+
+    form = forms.MyLocation(initial={'location': initial_data})
+    return render(request, 'django_tasker_account/profile_mylocation.html', {'form': form})
 
 
 # Update user and profile

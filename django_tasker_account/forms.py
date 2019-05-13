@@ -446,3 +446,16 @@ class Profile(forms.Form):
             birth_date=self.cleaned_data.get('birth_date'),
             gender=self.cleaned_data.get('gender'),
         ))
+
+
+class MyLocation(forms.Form):
+    location = forms.CharField(
+        widget=TextInput(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+                'autocomplete': 'off',
+                'placeholder': _('location')
+            }
+        ),
+        label=_('location')
+    )
