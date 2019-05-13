@@ -46,14 +46,14 @@
             <div class="row">
                 <div class="col">
                     <p class="mt-6 mb-3 text-muted text-center">
-                        <a href="/accounts/oauth/google/" class="btn btn-outline-primary">Google</a>
-                        <a href="/accounts/oauth/yandex/" class="btn btn-outline-primary">Yandex</a>
-                        <a href="/accounts/oauth/mailru/" class="btn btn-outline-primary">Mail.ru</a>
+                        <a href="{% url 'django_tasker_account:oauth_google' %}?next={{ request.GET.next|default:'/' }}" class="btn btn-outline-primary">Google</a>
+                        <a href="{% url 'django_tasker_account:oauth_yandex' %}?next={{ request.GET.next|default:'/' }}" class="btn btn-outline-primary">Yandex</a>
+                        <a href="{% url 'django_tasker_account:oauth_mailru' %}?next={{ request.GET.next|default:'/' }}" class="btn btn-outline-primary">Mail.ru</a>
                     </p>
 
                     <p class="mt-6 mb-3 text-muted text-center">
-                        <a href="/accounts/oauth/facebook/" class="btn btn-outline-primary">Facebook</a>
-                        <a href="/accounts/oauth/vk/" class="btn btn-outline-primary">VK.com</a>
+                        <a href="{% url 'django_tasker_account:oauth_facebook' %}?next={{ request.GET.next|default:'/' }}" class="btn btn-outline-primary">Facebook</a>
+                        <a href="{% url 'django_tasker_account:oauth_vk' %}?next={{ request.GET.next|default:'/' }}" class="btn btn-outline-primary">VK.com</a>
                     </p>
                     <p class="mt-5 mb-3 text-muted text-center">&copy; Django Tasker Account {{ YEAR }}</p>
                 </div>

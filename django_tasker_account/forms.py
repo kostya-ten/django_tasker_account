@@ -314,7 +314,7 @@ class ChangePassword(SetPasswordForm):
         widget=PasswordInput(
             attrs={
                 'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
-                'autocomplete': 'off',
+                'autocomplete': 'new-password',
                 'placeholder': _('Password')
             }
         ),
@@ -325,8 +325,8 @@ class ChangePassword(SetPasswordForm):
         widget=PasswordInput(
             attrs={
                 'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
-                'autocomplete': 'off',
-                'placeholder': _('Confirm password')
+                'autocomplete': 'new-password',
+                'placeholder': _('New password confirmation')
             }
         ),
         label=_('New password confirmation')

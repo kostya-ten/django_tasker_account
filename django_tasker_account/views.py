@@ -568,29 +568,6 @@ def oauth_facebook(request: WSGIRequest):
     return redirect(reverse('django_tasker_account:oauth_completion', kwargs={'data': session.session_key}))
 
 
-@login_required()
-def profile(request: WSGIRequest):
-    if request.method == 'POST':
-        form = forms.Profile(data=request.POST, request=request)
-        if form.is_valid():
-            form.save()
-            return render(request, "django_tasker_account/profile.html", {'form': form})
-        else:
-            return render(request, "django_tasker_account/profile.html", {'form': form}, status=400)
-
-    user = request.user
-    form = forms.Profile(
-        initial={
-            'last_name': user.last_name,
-            'first_name': user.first_name,
-            'gender': user.profile.gender,
-            'birth_date': user.profile.birth_date,
-            'language': user.profile.language,
-        }
-    )
-    return render(request, "django_tasker_account/profile.html", {'form': form})
-
-
 # NO TEST
 def oauth_completion(request: WSGIRequest, data: converters.OAuth):
     if request.method == 'POST':
@@ -664,8 +641,41 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
 
 
 @login_required()
+def profile(request: WSGIRequest):
+    if request.method == 'POST':
+        form = forms.Profile(data=request.POST, request=request)
+        if form.is_valid():
+            form.save()
+            return render(request, "django_tasker_account/profile.html", {'form': form})
+        else:
+            return render(request, "django_tasker_account/profile.html", {'form': form}, status=400)
+
+    user = request.user
+    form = forms.Profile(
+        initial={
+            'last_name': user.last_name,
+            'first_name': user.first_name,
+            'gender': user.profile.gender,
+            'birth_date': user.profile.birth_date,
+            'language': user.profile.language,
+        }
+    )
+    return render(request, "django_tasker_account/profile.html", {'form': form})
+
+
+@login_required()
 def profile_change_password(request: WSGIRequest):
-    pass
+    if request.method == 'POST':
+        form = forms.ChangePassword(data=request.POST, request=request, user=request.user)
+        if form.is_valid():
+            form.login()
+            messages.success(request, _("Your password was changed."))
+            return redirect(reverse('django_tasker_account:profile'))
+        else:
+            return render(request, 'django_tasker_account/profile_change_password.html', {'form': form}, status=400)
+
+    form = forms.ChangePassword(user=request.user)
+    return render(request, 'django_tasker_account/profile_change_password.html', {'form': form})
 
 
 # Update user and profile

@@ -35,6 +35,7 @@
             <div class="form-group">
                 <label for="{{ field.auto_id }}">{{ field.label|capfirst }}</label>
                 {{ field }}
+
                 {% for error in field.errors %}
                     <small id="{{ field.auto_id }}" class="form-text text-danger">{{ error }}</small>
                 {% endfor %}

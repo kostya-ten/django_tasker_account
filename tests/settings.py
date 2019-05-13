@@ -27,11 +27,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-print("https://home.ndix.ru/accounts/oauth/google/")
-print("https://home.ndix.ru/accounts/oauth/yandex/")
-print("https://home.ndix.ru/accounts/oauth/vk/")
-print("https://home.ndix.ru/accounts/oauth/facebook/")
-print("https://home.ndix.ru/accounts/oauth/mailru/")
+# print("https://home.ndix.ru/accounts/oauth/google/")
+# print("https://home.ndix.ru/accounts/oauth/yandex/")
+# print("https://home.ndix.ru/accounts/oauth/vk/")
+# print("https://home.ndix.ru/accounts/oauth/facebook/")
+# print("https://home.ndix.ru/accounts/oauth/mailru/")
 
 # Application definition
 
