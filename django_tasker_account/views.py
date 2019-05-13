@@ -98,7 +98,7 @@ def forgot_password(request: WSGIRequest):
     form = forms.ForgotPassword(data=request.POST, request=request)
     if form.is_valid():
         form.sendmail()
-        messages.success(request, _("You have been sent a link to change your password"))
+        messages.success(request, _("Password reset sent"))
         return redirect(settings.LOGIN_URL)
 
     return render(request, "django_tasker_account/forgot_password.html", {'form': form}, status=400)
@@ -115,7 +115,7 @@ def change_password(request: WSGIRequest, data: converters.ChangePassword):
         form.save()
         form.login()
         data.session.delete()
-        messages.success(request, _("Password successfully changed"))
+        messages.success(request, _("Password reset complete"))
         return redirect(data.next)
 
     return render(request, "django_tasker_account/change_password.html", {'form': form}, status=400)
@@ -204,7 +204,7 @@ def oauth_google(request: WSGIRequest):
         session["oauth"]["email"] = email
 
     session.create()
-    return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
+    return redirect(reverse('django_tasker_account:oauth_completion', kwargs={'data': session.session_key}))
 
 
 def oauth_yandex(request: WSGIRequest):
@@ -318,7 +318,7 @@ def oauth_yandex(request: WSGIRequest):
     session["oauth"]["email"] = email
     session.create()
 
-    return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
+    return redirect(reverse('django_tasker_account:oauth_completion', kwargs={'data': session.session_key}))
 
 
 def oauth_mailru(request: WSGIRequest):
@@ -415,7 +415,7 @@ def oauth_mailru(request: WSGIRequest):
 
     session.create()
 
-    return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
+    return redirect(reverse('django_tasker_account:oauth_completion', kwargs={'data': session.session_key}))
 
 
 def oauth_vk(request: WSGIRequest):
@@ -494,7 +494,7 @@ def oauth_vk(request: WSGIRequest):
             session["oauth"]["username"] = user
 
     session.create()
-    return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
+    return redirect(reverse('django_tasker_account:oauth_completion', kwargs={'data': session.session_key}))
 
 
 def oauth_facebook(request: WSGIRequest):
@@ -565,7 +565,7 @@ def oauth_facebook(request: WSGIRequest):
         'next': request.GET.get('state')
     }
     session.create()
-    return redirect(reverse(oauth_completion, kwargs={'data': session.session_key}))
+    return redirect(reverse('django_tasker_account:oauth_completion', kwargs={'data': session.session_key}))
 
 
 @login_required()
@@ -666,6 +666,7 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
 @login_required()
 def profile_change_password(request: WSGIRequest):
     pass
+
 
 # Update user and profile
 def _oauth_update_user(user: User, data: converters.OAuth) -> None:

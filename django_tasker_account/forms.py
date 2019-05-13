@@ -24,9 +24,10 @@ class Login(AuthenticationForm):
             attrs={
                 'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
                 'autocomplete': 'username',
-                'placeholder': _('Username')
+                'placeholder': _('username')
             }
-        )
+        ),
+        label=_('username')
     )
 
     password = forms.CharField(
@@ -36,7 +37,8 @@ class Login(AuthenticationForm):
                 'autocomplete': 'current-password',
                 'placeholder': _('Password')
             }
-        )
+        ),
+        label=_('Password')
     )
 
     remember = forms.BooleanField(
@@ -141,7 +143,8 @@ class Signup(UserCreationForm):
         ),
         validators=[
             validators.password
-        ]
+        ],
+        label=_('Password')
     )
 
     password2 = forms.CharField(
@@ -154,7 +157,8 @@ class Signup(UserCreationForm):
         ),
         validators=[
             validators.password
-        ]
+        ],
+        label=_('Password confirmation')
     )
 
     def __init__(self, *args, **kwargs):
@@ -314,6 +318,7 @@ class ChangePassword(SetPasswordForm):
                 'placeholder': _('Password')
             }
         ),
+        label=_('New password')
     )
 
     new_password2 = forms.CharField(
@@ -324,6 +329,7 @@ class ChangePassword(SetPasswordForm):
                 'placeholder': _('Confirm password')
             }
         ),
+        label=_('New password confirmation')
     )
 
     def __init__(self, *args, **kwargs):
@@ -345,13 +351,14 @@ class OAuth(forms.Form):
             attrs={
                 'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
                 'autocomplete': 'off',
-                'placeholder': _('Username')
+                'placeholder': _('username')
             }
         ),
         validators=[
             validators.username,
             validators.username_dublicate,
-        ]
+        ],
+        label=_('username')
     )
 
 
