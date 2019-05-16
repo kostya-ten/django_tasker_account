@@ -459,3 +459,9 @@ class MyLocation(forms.Form):
         ),
         label=_('location')
     )
+
+
+class Avatar(forms.ModelForm):
+    class Meta:
+        model = models.Profile
+        fields = ['avatar']

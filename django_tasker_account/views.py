@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.handlers.wsgi import WSGIRequest
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages, auth
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -704,6 +704,21 @@ def profile_mylocation(request: WSGIRequest) -> None:
 
     form = forms.MyLocation(initial={'location': initial_data})
     return render(request, 'django_tasker_account/profile_mylocation.html', {'form': form})
+
+
+@login_required()
+def profile_avatar(request: WSGIRequest):
+    if request.method == 'POST':
+        profile = get_object_or_404(models.Profile, user=request.user)
+        print(profile)
+
+        form = forms.Avatar(data=request.POST, files=request.FILES, initial=profile)
+        form.save()
+        print(request.FILES)
+        pass
+
+    form = forms.Avatar()
+    return render(request, 'django_tasker_account/profile_avatar.html', {'form': form})
 
 
 # Update user and profile
