@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.handlers.wsgi import WSGIRequest
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages, auth
 from django.urls import reverse
@@ -710,12 +711,11 @@ def profile_mylocation(request: WSGIRequest) -> None:
 def profile_avatar(request: WSGIRequest):
     if request.method == 'POST':
         profile = get_object_or_404(models.Profile, user=request.user)
-        print(profile)
 
         form = forms.Avatar(data=request.POST, files=request.FILES, initial=profile)
-        form.save()
-        print(request.FILES)
-        pass
+        if form.is_valid():
+            form.save()
+            print(request.FILES)
 
     form = forms.Avatar()
     return render(request, 'django_tasker_account/profile_avatar.html', {'form': form})

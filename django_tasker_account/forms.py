@@ -465,3 +465,4 @@ class Avatar(forms.ModelForm):
     class Meta:
         model = models.Profile
         fields = ['avatar']
+
