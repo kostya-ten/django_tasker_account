@@ -461,8 +461,6 @@ class MyLocation(forms.Form):
     )
 
 
-class Avatar(forms.ModelForm):
-    class Meta:
-        model = models.Profile
-        fields = ['avatar']
+class Avatar(forms.Form):
+    avatar = forms.ImageField()
 

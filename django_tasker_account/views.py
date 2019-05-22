@@ -710,12 +710,15 @@ def profile_mylocation(request: WSGIRequest) -> None:
 @login_required()
 def profile_avatar(request: WSGIRequest):
     if request.method == 'POST':
-        profile = get_object_or_404(models.Profile, user=request.user)
-
-        form = forms.Avatar(data=request.POST, files=request.FILES, initial=profile)
+        form = forms.Avatar(data=request.POST, files=request.FILES)
         if form.is_valid():
-            form.save()
-            print(request.FILES)
+            request.user.profile.avatar.delete()
+            request.user.profile.avatar.save(
+                request.FILES.get('avatar').name,
+                ContentFile(request.FILES.get('avatar').read())
+            )
+            messages.success(request, _("Avatar successfully uploaded."))
+            return render(request, 'django_tasker_account/profile_avatar.html', {'form': form})
 
     form = forms.Avatar()
     return render(request, 'django_tasker_account/profile_avatar.html', {'form': form})
