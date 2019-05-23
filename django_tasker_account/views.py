@@ -17,6 +17,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages, auth
+from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from email_validator import validate_email
@@ -712,10 +713,11 @@ def profile_avatar(request: WSGIRequest):
     if request.method == 'POST':
         form = forms.Avatar(data=request.POST, files=request.FILES)
         if form.is_valid():
-            request.user.profile.avatar.delete()
+            default_storage.delete(request.user.profile.avatar.path)
+
             request.user.profile.avatar.save(
-                request.FILES.get('avatar').name,
-                ContentFile(request.FILES.get('avatar').read())
+               request.FILES.get('avatar').name,
+               ContentFile(request.FILES.get('avatar').read())
             )
             messages.success(request, _("Avatar successfully uploaded."))
             return render(request, 'django_tasker_account/profile_avatar.html', {'form': form})
