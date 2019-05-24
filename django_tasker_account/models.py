@@ -1,3 +1,4 @@
+import re
 from os import urandom
 from pathlib import Path
 
@@ -132,7 +133,9 @@ class Profile(models.Model):
 
     def path(instance, filename):
         extension = Path(filename).suffix
-        return 'avatar/{0}/{1}/{2}'.format(urandom(1).hex(), urandom(1).hex(), urandom(16).hex() + extension)
+        key = urandom(16).hex()
+        result = re.match(r'([a-z0-9]{2})([a-z0-9]{2})', key)
+        return 'avatar/{0}/{1}/{2}'.format(result.group(1), result.group(2), key + extension)
 
     avatar = models.ImageField(upload_to=path, null=True, blank=True)
 

@@ -14,8 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages, auth
 from django.core.files.storage import default_storage
 from django.urls import reverse
@@ -713,7 +712,8 @@ def profile_avatar(request: WSGIRequest):
     if request.method == 'POST':
         form = forms.Avatar(data=request.POST, files=request.FILES)
         if form.is_valid():
-            default_storage.delete(request.user.profile.avatar.path)
+            if request.user.profile.avatar:
+                default_storage.delete(request.user.profile.avatar.path)
 
             request.user.profile.avatar.save(
                request.FILES.get('avatar').name,
