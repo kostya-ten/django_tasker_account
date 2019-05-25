@@ -12,7 +12,7 @@ with io.open("README.rst", encoding="UTF-8") as readme:
     long_description = readme.read()
     
 setup(
-    name='django_tasker_account',
+    name='django-tasker-account',
     version='0.0.1',
     packages=[
         'tests',
