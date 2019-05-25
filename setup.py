@@ -53,14 +53,14 @@ setup(
     },
     python_requires='>=3',
     install_requires=[
-        'Django>=2.2',
-        'Pillow>=6.0.0',
+        'Django >= 2.2.1',
+        'Pillow >= 6.0.0',
         'docutils >= 0.14',
-        'phonenumbers>=8.10.9',
-        'email-validator>=1.0.3',
-        'timezonefinder>=4.0.2',
-        'geoip2>=2.9.0',
-        'requests>=2.21.0',
-        'pytz>=2018.9'
+        'phonenumbers >= 8.10.12',
+        'email - validator >= 1.0.4',
+        'timezonefinder >= 4.0.2',
+        'geoip2 >= 2.9.0',
+        'requests >= 2.22.0',
+        'pytz >= 2019.1',
     ]
 )
