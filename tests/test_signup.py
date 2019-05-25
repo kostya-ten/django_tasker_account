@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings, RequestFactory
 from django.core import mail
+from django.urls import reverse
 
 from django_tasker_account import forms, views, converters
 from . import test_base
@@ -128,7 +129,7 @@ class Signup(TestCase, test_base.Request):
 
     def test_views(self):
         factory = RequestFactory(HTTP_HOST='localhost')
-        request = factory.post('/accounts/signup/', data={
+        request = factory.post(reverse('django_tasker_account:signup'), data={
             'username': 'username3',
             'last_name': 'last_name',
             'first_name': 'first_name',
@@ -141,7 +142,7 @@ class Signup(TestCase, test_base.Request):
         response = views.signup(request)
         self.assertRedirects(
             response,
-            '/accounts/login/',
+            reverse('django_tasker_account:login'),
             status_code=302,
             target_status_code=200,
             fetch_redirect_response=False,

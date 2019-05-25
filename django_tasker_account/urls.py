@@ -8,9 +8,9 @@ register_converter(converters.OAuth, 'oauth')
 app_name = 'django_tasker_account'
 
 urlpatterns = [
-    path('login/', views.login),
+    path('login/', views.login, name="login"),
     path('logout/', views.logout, name="logout"),
-    path('signup/', views.signup),
+    path('signup/', views.signup, name="signup"),
     path('forgot_password/', views.forgot_password, name="forgot_password"),
     path('confirm/email/<confirm_email:data>/', views.confirm_email),
     path('change/password/<change_password:data>/', views.change_password),

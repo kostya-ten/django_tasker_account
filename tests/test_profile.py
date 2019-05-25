@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.test import TestCase, override_settings, RequestFactory
+from django.urls import reverse
 
 from django_tasker_account import forms, views
 from . import test_base
@@ -16,7 +17,7 @@ class Profile(TestCase, test_base.Request):
 
     def test_forms(self):
         factory = RequestFactory(HTTP_HOST='localhost')
-        request = factory.get('/accounts/profile/')
+        request = factory.get(reverse('django_tasker_account:profile'))
         request = self.generate_request(request)
         request.user = get_object_or_404(User, username='username')
 
@@ -44,7 +45,7 @@ class Profile(TestCase, test_base.Request):
 
     def test_views(self):
         factory = RequestFactory(HTTP_HOST='localhost')
-        request = factory.get('/accounts/profile/')
+        request = factory.get(reverse('django_tasker_account:profile'))
         request = self.generate_request(request)
         request.user = self.user
 
@@ -59,7 +60,7 @@ class Profile(TestCase, test_base.Request):
             'language': 'ru',
         }
 
-        request = factory.post('/accounts/profile/', data)
+        request = factory.post(reverse('django_tasker_account:profile'), data)
         request = self.generate_request(request)
         request.user = self.user
         response = views.profile(request)
