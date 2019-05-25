@@ -37,7 +37,6 @@ Features
       * Yandex
    * Filling user profile from provider OAuth
    * Automatic download avatar
-* 2FA
 * Pages
    * Login page
    * Sign up page (sending a confirmation email)
