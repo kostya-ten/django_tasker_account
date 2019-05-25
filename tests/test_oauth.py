@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase, override_settings, RequestFactory
 from django.urls import reverse
 
-from django_tasker_account import forms, views, converters
+from django_tasker_account import views, converters
 from . import test_base
 
 
