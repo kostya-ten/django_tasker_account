@@ -5,7 +5,8 @@ from importlib import import_module
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordResetForm, SetPasswordForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordResetForm, PasswordChangeForm, \
+    SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.forms import TextInput, PasswordInput, Select, CheckboxInput
@@ -330,6 +331,53 @@ class ChangePassword(SetPasswordForm):
             }
         ),
         label=_('New password confirmation')
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
+    def login(self) -> User:
+        """
+        User authorization
+        """
+        auth.login(self.request, self.user)
+        logger.info("User authentication username:{username}".format(username=self.user.username))
+        return self.user
+
+
+class ProfileChangePassword(PasswordChangeForm):
+    new_password1 = forms.CharField(
+        widget=PasswordInput(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+                'autocomplete': 'new-password',
+                'placeholder': _('Password')
+            }
+        ),
+        label=_('New password')
+    )
+
+    new_password2 = forms.CharField(
+        widget=PasswordInput(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+                'autocomplete': 'new-password',
+                'placeholder': _('New password confirmation')
+            }
+        ),
+        label=_('New password confirmation')
+    )
+
+    old_password = forms.CharField(
+        widget=PasswordInput(
+            attrs={
+                'class': getattr(settings, 'TASKER_HTML_INPUT_CLASS', 'form-control'),
+                'autocomplete': 'off',
+                'placeholder': _('Old password')
+            }
+        ),
+        label=_('Old password')
     )
 
     def __init__(self, *args, **kwargs):

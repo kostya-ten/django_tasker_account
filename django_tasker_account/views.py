@@ -667,15 +667,16 @@ def profile(request: WSGIRequest):
 @login_required()
 def profile_change_password(request: WSGIRequest) -> None:
     if request.method == 'POST':
-        form = forms.ChangePassword(data=request.POST, request=request, user=request.user)
+        form = forms.ProfileChangePassword(data=request.POST, request=request, user=request.user)
         if form.is_valid():
+            form.save()
             form.login()
             messages.success(request, _("Your password was changed."))
             return redirect(reverse('django_tasker_account:profile'))
         else:
             return render(request, 'django_tasker_account/profile_change_password.html', {'form': form}, status=400)
 
-    form = forms.ChangePassword(user=request.user)
+    form = forms.ProfileChangePassword(user=request.user)
     return render(request, 'django_tasker_account/profile_change_password.html', {'form': form})
 
 
