@@ -23,24 +23,24 @@ class Profile(TestCase, test_base.Request):
         form = forms.Profile(
             request=request,
             data={
-                'last_name': 'Kazerogova',
-                'first_name': 'Lilu',
-                'gender': 1,
-                'birth_date': '1981-01-01',
-                'language': 'ru',
+                'last_name': 'Kazerogova2',
+                'first_name': 'Lilu2',
+                'gender': 2,
+                'birth_date': '1982-01-01',
+                'language': 'en',
             }
         )
         self.assertTrue(form.is_valid())
         form.save()
 
         user = get_object_or_404(User, username='username')
-        self.assertEqual(user.last_name, 'Kazerogova')
-        self.assertEqual(user.first_name, 'Lilu')
-        self.assertEqual(user.profile.gender, 1)
-        self.assertEqual(str(user.profile.birth_date), '1981-01-01')
-        self.assertEqual(user.profile.language, 'ru')
+        self.assertEqual(user.last_name, 'Kazerogova2')
+        self.assertEqual(user.first_name, 'Lilu2')
+        self.assertEqual(user.profile.gender, 2)
+        self.assertEqual(str(user.profile.birth_date), '1982-01-01')
+        self.assertEqual(user.profile.language, 'en')
 
-        self.assertEqual(user.profile.get_gender_display(), 'Male')
+        self.assertEqual(user.profile.get_gender_display(), 'Female')
 
     def test_views(self):
         factory = RequestFactory(HTTP_HOST='localhost')
