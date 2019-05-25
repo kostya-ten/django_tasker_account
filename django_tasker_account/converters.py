@@ -108,8 +108,6 @@ class OAuth:
         if session.get('oauth') is None:
             raise ValueError('Session not found')
 
-        pprint(session.get('oauth'))
-
         if session.get('oauth').get('module') == 'django_tasker_account.views':
             self.provider = session.get('oauth').get('provider')
             self.access_token = session.get('oauth').get('access_token')
