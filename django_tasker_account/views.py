@@ -569,7 +569,6 @@ def oauth_facebook(request: WSGIRequest):
     return redirect(reverse('django_tasker_account:oauth_completion', kwargs={'data': session.session_key}))
 
 
-# NO TEST
 def oauth_completion(request: WSGIRequest, data: converters.OAuth):
     if request.method == 'POST':
         form = forms.OAuth(data=request.POST)
