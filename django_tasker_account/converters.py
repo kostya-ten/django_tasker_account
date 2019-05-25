@@ -1,6 +1,4 @@
-import hashlib
 from importlib import import_module
-from pprint import pprint
 
 from django.conf import settings
 from django.contrib.auth.models import User
