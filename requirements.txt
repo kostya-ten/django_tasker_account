@@ -7,4 +7,3 @@ timezonefinder>=4.0.2
 geoip2>=2.9.0
 requests>=2.22.0
 pytz>=2019.1
-
