@@ -42,7 +42,6 @@ Features
       * Yandex
    * Filling user profile from provider OAuth
    * Automatic download avatar
-* 2FA
 * Pages
    * Login page
    * Sign up page (sending a confirmation email)
@@ -92,16 +91,32 @@ Configuring
 
 .. table:: Django Tasker Account recognises the following options.
 
-    ============================== =========== =================================================================================================
-    Option                         Default     Description
-    ============================== =========== =================================================================================================
-    YANDEX_MAP_KEY                 *Required*  The Geocoder can get a geo object's coordinates
-    YANDEX_LOCATOR_KEY             *Optional*  Locator locates the user
-    GEOIP_PATH                     *Required*  Geolocation with GeoIP2  `documentation  <https://docs.djangoproject.com/en/dev/ref/contrib/gis/geoip2/>`_
-    EMAIL_HOST                     *Required*
-    TASKER_HTML_INPUT_CLASS        *Optional*  Class html input form
-    TASKER_ACCOUNT_SESSION_SIGNUP  1 day
-    ============================== =========== =================================================================================================
+    ===================================== =========== =================================================================================================
+    Option                                Default     Description
+    ===================================== =========== =================================================================================================
+    YANDEX_MAP_KEY                        *Required*  The Geocoder can get a geo object's coordinates
+    YANDEX_LOCATOR_KEY                    *Optional*  Locator locates the user
+    GEOIP_PATH                            *Required*  Geolocation with GeoIP2  `documentation  <https://docs.djangoproject.com/en/dev/ref/contrib/gis/geoip2/>`_
+    EMAIL_HOST                            *Required*
+    TASKER_HTML_INPUT_CLASS               *Optional*  Class html input form
+    TASKER_ACCOUNT_SESSION_SIGNUP         1 day
+    TASKER_ACCOUNT_SESSION_FORGOTPASSWORD 1 day
+
+    OAUTH_YANDEX_CLIENT_ID                *Optional*  OAuth client id from yandex
+    OAUTH_YANDEX_SECRET_KEY               *Optional*  OAuth secret key from yandex
+
+    OAUTH_MAILRU_CLIENT_ID                *Optional*  OAuth client id from mail.ru
+    OAUTH_MAILRU_SECRET_KEY               *Optional*  OAuth secret key from mail.ru
+
+    OAUTH_GOOGLE_CLIENT_ID                *Optional*  OAuth client id from Google
+    OAUTH_GOOGLE_SECRET_KEY               *Optional*  OAuth secret key from Google
+
+    OAUTH_VK_CLIENT_ID                    *Optional*  OAuth client id from VK.com
+    OAUTH_VK_SECRET_KEY                   *Optional*  OAuth secret key from VK.com
+
+    OAUTH_FACEBOOK_CLIENT_ID              *Optional*  OAuth client id from Facebook
+    OAUTH_FACEBOOK_SECRET_KEY             *Optional*  OAuth secret key from Facebook
+    ===================================== =========== =================================================================================================
 
 Where to get the keys?
 """"""""""""""""""""""

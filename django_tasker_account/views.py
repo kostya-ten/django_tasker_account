@@ -40,7 +40,6 @@ def login(request: WSGIRequest):
     return render(request, 'django_tasker_account/login.html', {'form': form}, status=400)
 
 
-# NO TEST
 def logout(request: WSGIRequest):
     if request.user.is_authenticated:
         logger.info("Logout user username:{username}".format(username=request.user.username))
