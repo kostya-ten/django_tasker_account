@@ -12,11 +12,11 @@ from . import test_base
 )
 class Profile(TestCase, test_base.Request):
     def setUp(self) -> None:
-        User.objects.create_user(username='username', password='Qazwsx123', email='devnull@example.com')
+        self.user = User.objects.create_user(username='username', password='Qazwsx123', email='devnull@example.com')
 
     def test_forms(self):
         factory = RequestFactory(HTTP_HOST='localhost')
-        request = factory.get('/accounts/login/')
+        request = factory.get('/accounts/profile/')
         request = self.generate_request(request)
         request.user = get_object_or_404(User, username='username')
 
@@ -43,4 +43,33 @@ class Profile(TestCase, test_base.Request):
         self.assertEqual(user.profile.get_gender_display(), 'Male')
 
     def test_views(self):
-        pass
+        factory = RequestFactory(HTTP_HOST='localhost')
+        request = factory.get('/accounts/profile/')
+        request = self.generate_request(request)
+        request.user = self.user
+
+        response = views.profile(request)
+        self.assertEqual(response.status_code, 200)
+
+        data = {
+            'last_name': 'Kazerogova',
+            'first_name': 'Lilu',
+            'gender': 1,
+            'birth_date': '1981-01-01',
+            'language': 'ru',
+        }
+
+        request = factory.post('/accounts/profile/', data)
+        request = self.generate_request(request)
+        request.user = self.user
+        response = views.profile(request)
+        self.assertEqual(response.status_code, 200)
+
+        user = get_object_or_404(User, username='username')
+        self.assertEqual(user.last_name, 'Kazerogova')
+        self.assertEqual(user.first_name, 'Lilu')
+        self.assertEqual(user.profile.gender, 1)
+        self.assertEqual(str(user.profile.birth_date), '1981-01-01')
+        self.assertEqual(user.profile.language, 'ru')
+
+        self.assertEqual(user.profile.get_gender_display(), 'Male')
