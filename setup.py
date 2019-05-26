@@ -10,18 +10,11 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 with io.open("README.rst", encoding="UTF-8") as readme:
     long_description = readme.read()
-    
+
 setup(
     name='django-tasker-account',
-    version='0.0.1',
-    packages=[
-        'tests',
-        'django_tasker_account',
-        'django_tasker_account.migrations',
-        'django_tasker_account.templates',
-        'django_tasker_account.templates.django_tasker_account',
-        'django_tasker_account.management.commands',
-    ],
+    version='0.0.2',
+    packages=find_packages(),
     include_package_data=True,
     license='Apache License 2.0',
     description="Django Tasker Account - Extended user system for Django",
@@ -51,5 +44,5 @@ setup(
         'Source': 'https://github.com/kostya-ten/django_tasker_account/',
         'Tracker': 'https://github.com/kostya-ten/django_tasker_account/issues',
     },
-    python_requires='>=3'
+    python_requires='>=3',
 )
