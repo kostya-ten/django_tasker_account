@@ -1,2 +1,5 @@
+include *.txt
+include *.rst
+include LICENSE
 include django_tasker_account/templates/django_tasker_account/*
 include django_tasker_account/templates/django_tasker_account/email/*
