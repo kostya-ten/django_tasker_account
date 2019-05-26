@@ -13,7 +13,7 @@ with io.open("README.rst", encoding="UTF-8") as readme:
 
 setup(
     name='django-tasker-account',
-    version='0.0.3',
+    version='0.0.4',
     packages=find_packages(),
     include_package_data=True,
     license='Apache License 2.0',
@@ -45,4 +45,15 @@ setup(
         'Tracker': 'https://github.com/kostya-ten/django_tasker_account/issues',
     },
     python_requires='>=3',
+    install_requires=[
+        'Django>=2.2.1',
+        'Pillow>=6.0.0',
+        'docutils >= 0.14',
+        'phonenumbers>=8.10.12',
+        'email-validator>=1.0.4',
+        'timezonefinder>=4.0.2',
+        'geoip2>=2.9.0',
+        'requests>=2.22.0',
+        'pytz>=2019.1',
+    ],
 )
