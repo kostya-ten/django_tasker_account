@@ -707,7 +707,7 @@ def profile_mylocation(request: WSGIRequest) -> None:
 
 
 @login_required()
-def profile_avatar(request: WSGIRequest):
+def profile_avatar(request: WSGIRequest) -> None:
     if request.method == 'POST':
         form = forms.Avatar(data=request.POST, files=request.FILES)
         if form.is_valid():
