@@ -46,7 +46,6 @@ def logout(request: WSGIRequest):
         auth.logout(request)
 
     return redirect('/')
-    # return redirect(settings.LOGOUT_REDIRECT_URL)
 
 
 def signup(request: WSGIRequest):
