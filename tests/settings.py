@@ -140,8 +140,11 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR + MEDIA_URL
 
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 #EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 GEOIP_PATH = "/var/lib/GeoIP/"
+
