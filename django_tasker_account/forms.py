@@ -212,9 +212,13 @@ class Signup(UserCreationForm):
             host = 'localhost'
 
         subject = render_to_string('django_tasker_account/email/signup.subject.txt', {}).strip()
+
+        url = reverse('django_tasker_account:confirm_email', kwargs={'data': session.session_key})
+
         body = render_to_string('django_tasker_account/email/signup.body.html', {
             'session_key': session.session_key,
-            'host': host
+            'host': host,
+            'url': url,
         })
 
         name_email = getattr(settings, 'EMAIL_NAME', settings.DEFAULT_FROM_EMAIL)
