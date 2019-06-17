@@ -12,8 +12,8 @@ urlpatterns = [
     path('logout/', views.logout, name="logout"),
     path('signup/', views.signup, name="signup"),
     path('forgot_password/', views.forgot_password, name="forgot_password"),
-    path('confirm/email/<confirm_email:data>/', views.confirm_email),
-    path('change/password/<change_password:data>/', views.change_password),
+    path('confirm/email/<confirm_email:data>/', views.confirm_email, name="confirm_email"),
+    path('change/password/<change_password:data>/', views.change_password, name="change_password"),
 
     path('oauth/yandex/', views.oauth_yandex, name="oauth_yandex"),
     path('oauth/google/', views.oauth_google, name="oauth_google"),

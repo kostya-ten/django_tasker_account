@@ -13,6 +13,7 @@ from django.forms import TextInput, PasswordInput, Select, CheckboxInput
 from django.contrib import auth
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from . import validators, models
@@ -211,9 +212,13 @@ class Signup(UserCreationForm):
             host = 'localhost'
 
         subject = render_to_string('django_tasker_account/email/signup.subject.txt', {}).strip()
+
+        url = reverse('django_tasker_account:confirm_email', kwargs={'data': session.session_key})
+
         body = render_to_string('django_tasker_account/email/signup.body.html', {
             'session_key': session.session_key,
-            'host': host
+            'host': host,
+            'url': url,
         })
 
         name_email = getattr(settings, 'EMAIL_NAME', settings.DEFAULT_FROM_EMAIL)
@@ -289,9 +294,13 @@ class ForgotPassword(PasswordResetForm):
             host = 'localhost'
 
         subject = render_to_string('django_tasker_account/email/forgot_password.subject.txt', {}).strip()
+
+        url = reverse('django_tasker_account:change_password', kwargs={'data': session.session_key})
+
         body = render_to_string('django_tasker_account/email/forgot_password.body.html', {
             'session_key': session.session_key,
-            'host': host
+            'host': host,
+            'url': url,
         })
 
         name_email = getattr(settings, 'EMAIL_NAME', settings.DEFAULT_FROM_EMAIL)
