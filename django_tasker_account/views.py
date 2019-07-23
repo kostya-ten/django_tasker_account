@@ -20,8 +20,9 @@ from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from email_validator import validate_email
+from django_tasker_geobase import geocoder
 
-from . import forms, geobase, converters, models
+from . import forms, converters, models
 
 logger = logging.getLogger('tasker_account')
 
@@ -80,7 +81,7 @@ def confirm_email(request: WSGIRequest, data: converters.ConfirmEmail):
 
         # Set language profile
         # user.profile.language = get_supported_language_variant(get_language_from_request(request))
-        user.profile.geobase = geobase.detect_ip(query=request)
+        user.profile.geobase = geocoder.ip(request=request)
         user.profile.save()
 
         messages.success(request, _("Your address has been successfully verified"))
@@ -580,7 +581,7 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
             data.session.delete()
 
             # save geobase
-            user.profile.geobase = geobase.detect_ip(query=request)
+            user.profile.geobase = geocoder.ip(request=request)
             user.profile.save()
 
             auth.login(request, user)
@@ -606,7 +607,7 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
             data.session.delete()
 
             # save geobase
-            user.profile.geobase = geobase.detect_ip(query=request)
+            user.profile.geobase = geocoder.ip(request=request)
             user.profile.save()
 
             # Authentication
@@ -627,7 +628,7 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
             data.session.delete()
 
             # save geobase
-            user.profile.geobase = geobase.detect_ip(query=request)
+            user.profile.geobase = geocoder.ip(request=request)
             user.profile.save()
 
             # Authentication
@@ -694,8 +695,7 @@ def profile_mylocation(request: WSGIRequest) -> None:
     if request.method == 'POST':
         form = forms.MyLocation(data=request.POST)
         if form.is_valid():
-            obj = geobase.detect_geo(query=form.cleaned_data.get('location'))
-            request.user.profile.geobase = obj
+            request.user.profile.geobase = geocoder.geo(query=form.cleaned_data.get('location'))
             request.user.profile.save()
             return render(request, 'django_tasker_account/profile_mylocation.html', {'form': form})
 
