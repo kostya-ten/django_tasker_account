@@ -81,7 +81,7 @@ def confirm_email(request: WSGIRequest, data: converters.ConfirmEmail):
 
         # Set language profile
         # user.profile.language = get_supported_language_variant(get_language_from_request(request))
-        user.profile.geobase = geocoder.ip(request=request)
+        user.profile.geobase = geocoder.ip(request=request).object.id
         user.profile.save()
 
         messages.success(request, _("Your address has been successfully verified"))
