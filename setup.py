@@ -55,6 +55,6 @@ setup(
         'geoip2>=2.9.0',
         'requests>=2.22.0',
         'pytz>=2019.1',
-        'django-tasker-geobase>=0.0.11',
+        'django-tasker-geobase>=0.0.13',
     ],
 )
