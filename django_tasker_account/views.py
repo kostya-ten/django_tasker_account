@@ -630,7 +630,9 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
             data.session.delete()
 
             # save geobase
-            user.profile.geobase = geocoder.ip(request=request)
+
+            geobase = geocoder.ip(request=request)
+            user.profile.geobase = geobase.object
             user.profile.save()
 
             # Authentication
