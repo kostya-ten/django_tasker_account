@@ -19,6 +19,7 @@ urlpatterns = [
     path('oauth/google/', views.oauth_google, name="oauth_google"),
     path('oauth/vk/', views.oauth_vk, name="oauth_vk"),
     path('oauth/facebook/', views.oauth_facebook, name="oauth_facebook"),
+    path('oauth/facebook/deactivate/', views.oauth_facebook_deactivate, name="oauth_facebook_deactivate"),
     path('oauth/mailru/', views.oauth_mailru, name="oauth_mailru"),
     path('oauth/completion/<oauth:data>/', views.oauth_completion, name="oauth_completion"),
 

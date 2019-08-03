@@ -3,9 +3,12 @@ import os
 import hashlib
 import re
 import requests
+import base64
+import hashlib
+import hmac
+import json
 
 from importlib import import_module
-
 from urllib.parse import urlencode
 from datetime import datetime, timedelta, timezone
 
@@ -19,8 +22,12 @@ from django.contrib import messages, auth
 from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
 from email_validator import validate_email
 from django_tasker_geobase import geocoder
+
 
 from . import forms, converters, models
 
@@ -737,8 +744,9 @@ def profile_mylocation(request: WSGIRequest) -> None:
         form = forms.MyLocation(data=request.POST)
         if form.is_valid():
             geo = geocoder.geo(query=form.cleaned_data.get('location'))
-            request.user.profile.geobase = geo.object
-            request.user.profile.save()
+            if geo:
+                request.user.profile.geobase = geo.object
+                request.user.profile.save()
             return render(request, 'django_tasker_account/profile_mylocation.html', {'form': form})
 
         return render(request, 'django_tasker_account/profile_mylocation.html', {'form': form}, status=400)
@@ -764,6 +772,43 @@ def profile_avatar(request: WSGIRequest) -> None:
 
     form = forms.Avatar()
     return render(request, 'django_tasker_account/profile_avatar.html', {'form': form})
+
+
+@csrf_exempt
+def oauth_facebook_deactivate(request: WSGIRequest) -> JsonResponse:
+
+    def base64_url_decode(inp):
+        padding_factor = (4 - len(inp) % 4) % 4
+        inp += "=" * padding_factor
+        return base64.b64decode(inp.translate(dict(zip(map(ord, u'-_'), u'+/'))))
+
+    def parse_signed_request(signed_request=None):
+        secret = getattr(settings, 'OAUTH_FACEBOOK_SECRET_KEY', os.environ.get('OAUTH_FACEBOOK_SECRET_KEY'))
+
+        line = signed_request.split('.', 2)
+        encoded_sig = line[0]
+        payload = line[1]
+
+        sig = base64_url_decode(encoded_sig)
+        data = json.loads(base64_url_decode(payload))
+
+        if data.get('algorithm').upper() != 'HMAC-SHA256':
+            return None
+        else:
+            expected_sig = hmac.new(secret.encode(), msg=payload.encode(), digestmod=hashlib.sha256).digest()
+            if sig == expected_sig:
+                return data
+
+    if request.method == 'POST':
+        if request.POST.get('signed_request'):
+            data_result = parse_signed_request(signed_request=request.POST.get('signed_request'))
+
+            m = hashlib.sha256()
+            m.update(str(data_result.get('user_id')).encode("utf-8"))
+            m.hexdigest()
+            models.Oauth.objects.filter(provider=5, oauth_id=m.hexdigest()).delete()
+
+    return JsonResponse({})
 
 
 # Update user and profile
