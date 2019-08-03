@@ -1,6 +1,5 @@
 import logging
 import os
-import hashlib
 import re
 import requests
 import base64
