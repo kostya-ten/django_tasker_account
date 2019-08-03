@@ -82,6 +82,8 @@ To enable ``django_tasker_account`` in your project you need to add it to `INSTA
     INSTALLED_APPS = (
         # ...
         'django_tasker_account',
+        'django_tasker_geobase',
+        'mptt',
         # ...
     )
 
