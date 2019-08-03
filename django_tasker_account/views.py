@@ -81,10 +81,15 @@ def confirm_email(request: WSGIRequest, data: converters.ConfirmEmail):
 
         # Set language profile
         # user.profile.language = get_supported_language_variant(get_language_from_request(request))
-        geo = geocoder.ip(request=request)
-        print(geo.object.id)
-        user.profile.geobase = geo.object
-        user.profile.save()
+
+        # save geobase
+        geobase = geocoder.ip(request=request)
+
+        # get locality
+        locality = geobase.object.get_family().filter(type=4)
+        if locality.exists():
+            user.profile.geobase = locality.last()
+            user.profile.save()
 
         messages.success(request, _("Your address has been successfully verified"))
         return redirect(data.next)
@@ -583,8 +588,13 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
             data.session.delete()
 
             # save geobase
-            user.profile.geobase = geocoder.ip(request=request)
-            user.profile.save()
+            geobase = geocoder.ip(request=request)
+
+            # get locality
+            locality = geobase.object.get_family().filter(type=4)
+            if locality.exists():
+                user.profile.geobase = locality.last()
+                user.profile.save()
 
             auth.login(request, user)
             return redirect(data.next)
@@ -609,8 +619,13 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
             data.session.delete()
 
             # save geobase
-            user.profile.geobase = geocoder.ip(request=request)
-            user.profile.save()
+            geobase = geocoder.ip(request=request)
+
+            # get locality
+            locality = geobase.object.get_family().filter(type=4)
+            if locality.exists():
+                user.profile.geobase = locality.last()
+                user.profile.save()
 
             # Authentication
             auth.login(request, user)
@@ -630,10 +645,13 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
             data.session.delete()
 
             # save geobase
-
             geobase = geocoder.ip(request=request)
-            user.profile.geobase = geobase.object
-            user.profile.save()
+
+            # get locality
+            locality = geobase.object.get_family().filter(type=4)
+            if locality.exists():
+                user.profile.geobase = locality.last()
+                user.profile.save()
 
             # Authentication
             auth.login(request, user)
@@ -685,21 +703,41 @@ def profile_change_password(request: WSGIRequest) -> None:
 @login_required()
 def profile_mylocation(request: WSGIRequest) -> None:
 
-    if request.user.profile.language == 'ru':
-        initial_data = "{country}, {locality}".format(
-            country=request.user.profile.geobase.country.ru,
-            locality=request.user.profile.geobase.locality.ru,
-        )
-    else:
-        initial_data = "{country}, {locality}".format(
-            country=request.user.profile.geobase.country.en,
-            locality=request.user.profile.geobase.locality.en,
-        )
+    # if request.user.profile.language == 'ru':
+    #     initial_data = "{country}, {locality}".format(
+    #         country=request.user.profile.geobase.country.ru,
+    #         locality=request.user.profile.geobase.locality.ru,
+    #     )
+    # else:
+    #     initial_data = "{country}, {locality}".format(
+    #         country=request.user.profile.geobase.country.en,
+    #         locality=request.user.profile.geobase.locality.en,
+    #     )
+    initial_data = ""
+    if request.user.profile.geobase:
+        data = []
+        geo = request.user.profile.geobase.get_family()
+        country = geo.filter(type=1)
+        if country.exists():
+            if request.user.profile.language == 'ru':
+                data.append(country.last().ru)
+            else:
+                data.append(country.last().en)
+
+        locality = geo.filter(type=4)
+        if locality.exists():
+            if request.user.profile.language == 'ru':
+                data.append(locality.last().ru)
+            else:
+                data.append(locality.last().en)
+
+        initial_data = ", ".join(data)
 
     if request.method == 'POST':
         form = forms.MyLocation(data=request.POST)
         if form.is_valid():
-            request.user.profile.geobase = geocoder.geo(query=form.cleaned_data.get('location'))
+            geo = geocoder.geo(query=form.cleaned_data.get('location'))
+            request.user.profile.geobase = geo.object
             request.user.profile.save()
             return render(request, 'django_tasker_account/profile_mylocation.html', {'form': form})
 

@@ -49,7 +49,8 @@ class Profile(models.Model):
     phone = models.BigIntegerField(
         null=True,
         blank=True,
-        validators=[validators.mobile_number]
+        validators=[validators.mobile_number],
+        verbose_name=_("Mobile phone"),
     )
 
     geobase = models.ForeignKey(
@@ -60,7 +61,7 @@ class Profile(models.Model):
         verbose_name=_("Geobase")
     )
 
-    def path(instance, filename):
+    def path(self, filename):
         extension = Path(filename).suffix
         key = urandom(16).hex()
         result = re.match(r'([a-z0-9]{2})([a-z0-9]{2})', key)
