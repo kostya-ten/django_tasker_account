@@ -2,6 +2,9 @@ import io
 import os
 from setuptools import find_packages, setup
 
+with open('requirements.txt') as requirements:
+    required = requirements.read().splitlines()
+
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
     README = readme.read()
 
@@ -44,17 +47,6 @@ setup(
         'Source': 'https://github.com/kostya-ten/django_tasker_account/',
         'Tracker': 'https://github.com/kostya-ten/django_tasker_account/issues',
     },
-    python_requires='>=3',
-    install_requires=[
-        'Django>=2.2.1',
-        'Pillow>=6.0.0',
-        'docutils >= 0.14',
-        'phonenumbers>=8.10.12',
-        'email-validator>=1.0.4',
-        'timezonefinder>=4.0.2',
-        'geoip2>=2.9.0',
-        'requests>=2.22.0',
-        'pytz>=2019.1',
-        'django-tasker-geobase>=0.0.13',
-    ],
+    python_requires='~=3.7',
+    install_requires=required,
 )
