@@ -92,9 +92,9 @@ def confirm_email(request: WSGIRequest, data: converters.ConfirmEmail):
         geobase = geocoder.ip(request=request)
 
         # get locality
-        locality = geobase.object.get_family().filter(type=4)
-        if locality.exists():
-            user.profile.geobase = locality.last()
+        locality = geobase.get(geo_type=4)
+        if locality:
+            user.profile.geobase = locality
             user.profile.save()
 
         messages.success(request, _("Your address has been successfully verified"))
@@ -654,9 +654,9 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
             geobase = geocoder.ip(request=request)
 
             # get locality
-            locality = geobase.object.get_family().filter(type=4)
-            if locality.exists():
-                user.profile.geobase = locality.last()
+            locality = geobase.get(geo_type=4)
+            if locality:
+                user.profile.geobase = locality
                 user.profile.save()
 
             # Authentication
