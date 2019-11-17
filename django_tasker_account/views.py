@@ -597,7 +597,7 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
             geobase = geocoder.ip(request=request)
 
             # get locality
-            locality = geobase.object.get_family().filter(type=4)
+            locality = geobase.get_family().filter(type=4)
             if locality.exists():
                 user.profile.geobase = locality.last()
                 user.profile.save()
@@ -744,7 +744,7 @@ def profile_mylocation(request: WSGIRequest) -> None:
         if form.is_valid():
             geo = geocoder.geo(query=form.cleaned_data.get('location'))
             if geo:
-                request.user.profile.geobase = geo.object
+                request.user.profile.geobase = geo
                 request.user.profile.save()
             return render(request, 'django_tasker_account/profile_mylocation.html', {'form': form})
 
