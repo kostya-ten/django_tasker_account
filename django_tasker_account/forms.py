@@ -48,9 +48,10 @@ class Login(AuthenticationForm):
         widget=CheckboxInput(
             attrs={
                 'class': getattr(settings, 'TASKER_HTML_CHECK_INPUT_CLASS', 'form-check-input'),
+                'placeholder': _('Remember me')
             }
-        )
-
+        ),
+        label=_('Remember me'),
     )
 
     def clean_username(self):

@@ -1,0 +1,301 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-11-17 20:19+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
+"%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: django_tasker_account/apps.py:7
+msgid "Tasker account"
+msgstr ""
+
+#: django_tasker_account/forms.py:29 django_tasker_account/forms.py:32
+#: django_tasker_account/forms.py:412 django_tasker_account/forms.py:419
+msgid "username"
+msgstr ""
+
+#: django_tasker_account/forms.py:40 django_tasker_account/forms.py:43
+#: django_tasker_account/forms.py:145 django_tasker_account/forms.py:150
+#: django_tasker_account/forms.py:329 django_tasker_account/forms.py:365
+msgid "Password"
+msgstr ""
+
+#: django_tasker_account/forms.py:51 django_tasker_account/forms.py:54
+msgid "Remember me"
+msgstr "Запомнить меня"
+
+#: django_tasker_account/forms.py:96
+msgid "Username"
+msgstr ""
+
+#: django_tasker_account/forms.py:110
+msgid "Last name"
+msgstr ""
+
+#: django_tasker_account/forms.py:120
+msgid "First name"
+msgstr ""
+
+#: django_tasker_account/forms.py:130 django_tasker_account/forms.py:249
+msgid "Email"
+msgstr ""
+
+#: django_tasker_account/forms.py:158
+msgid "Confirm password"
+msgstr ""
+
+#: django_tasker_account/forms.py:164
+msgid "Password confirmation"
+msgstr ""
+
+#: django_tasker_account/forms.py:332 django_tasker_account/forms.py:368
+msgid "New password"
+msgstr ""
+
+#: django_tasker_account/forms.py:340 django_tasker_account/forms.py:343
+#: django_tasker_account/forms.py:376 django_tasker_account/forms.py:379
+msgid "New password confirmation"
+msgstr ""
+
+#: django_tasker_account/forms.py:387 django_tasker_account/forms.py:390
+msgid "Old password"
+msgstr ""
+
+#: django_tasker_account/forms.py:425 django_tasker_account/models.py:19
+msgid "Male"
+msgstr ""
+
+#: django_tasker_account/forms.py:426 django_tasker_account/models.py:20
+msgid "Female"
+msgstr ""
+
+#: django_tasker_account/forms.py:434 django_tasker_account/forms.py:437
+msgid "last name"
+msgstr ""
+
+#: django_tasker_account/forms.py:445 django_tasker_account/forms.py:448
+msgid "first name"
+msgstr ""
+
+#: django_tasker_account/forms.py:458
+msgid "gender"
+msgstr ""
+
+#: django_tasker_account/forms.py:466 django_tasker_account/forms.py:469
+#: django_tasker_account/models.py:46
+msgid "Birth date"
+msgstr ""
+
+#: django_tasker_account/forms.py:479
+msgid "language"
+msgstr ""
+
+#: django_tasker_account/forms.py:515 django_tasker_account/forms.py:518
+msgid "location"
+msgstr ""
+
+#: django_tasker_account/models.py:26 django_tasker_account/models.py:85
+msgid "User"
+msgstr ""
+
+#: django_tasker_account/models.py:32
+msgid "Language"
+msgstr ""
+
+#: django_tasker_account/models.py:40
+msgid "Gender"
+msgstr ""
+
+#: django_tasker_account/models.py:53
+msgid "Mobile phone"
+msgstr ""
+
+#: django_tasker_account/models.py:61
+msgid "Geobase"
+msgstr ""
+
+#: django_tasker_account/models.py:86
+msgid "Oauth ID"
+msgstr ""
+
+#: django_tasker_account/models.py:87
+msgid "Server"
+msgstr ""
+
+#: django_tasker_account/models.py:89
+msgid "Access token"
+msgstr ""
+
+#: django_tasker_account/models.py:90
+msgid "Expires date"
+msgstr ""
+
+#: django_tasker_account/models.py:94 django_tasker_account/models.py:95
+msgid "OAuth"
+msgstr ""
+
+#: django_tasker_account/templates/django_tasker_account/base.html:25
+msgid "Personal info"
+msgstr ""
+
+#: django_tasker_account/templates/django_tasker_account/base.html:28
+msgid "Change password"
+msgstr ""
+
+#: django_tasker_account/templates/django_tasker_account/base.html:31
+msgid "My location"
+msgstr ""
+
+#: django_tasker_account/templates/django_tasker_account/base.html:34
+msgid "Avatar"
+msgstr ""
+
+#: django_tasker_account/templates/django_tasker_account/base.html:37
+msgid "Log out"
+msgstr ""
+
+#: django_tasker_account/templates/django_tasker_account/email/forgot_password.body.html:24
+#: django_tasker_account/templates/django_tasker_account/email/forgot_password.subject.txt:2
+msgid "Password recovery"
+msgstr ""
+
+#: django_tasker_account/templates/django_tasker_account/email/forgot_password.body.html:27
+msgid ""
+"You have received this email because your email address is listed on the "
+"site."
+msgstr ""
+
+#: django_tasker_account/templates/django_tasker_account/email/forgot_password.body.html:28
+#, python-format
+msgid ""
+"\n"
+"                                To restore access, please follow the link <a "
+"href=\"https://%(host)s%(url)s\">https://%(host)s%(url)s</a> or copy it to "
+"the address bar of the browser.\n"
+"                            "
+msgstr ""
+
+#: django_tasker_account/templates/django_tasker_account/email/signup.body.html:24
+#: django_tasker_account/templates/django_tasker_account/email/signup.subject.txt:2
+msgid "Please confirm email address"
+msgstr ""
+
+#: django_tasker_account/templates/django_tasker_account/email/signup.body.html:27
+msgid ""
+"\n"
+"                                    Verify your email address to activate "
+"your account.<br><br>\n"
+"                                    If you received it by mistake or sent "
+"it, please disregard this email.\n"
+"                                "
+msgstr ""
+
+#: django_tasker_account/templates/django_tasker_account/login.html:7
+msgid "Password reset"
+msgstr ""
+
+#: django_tasker_account/validators.py:24
+#: django_tasker_account/validators.py:29
+msgid "Invalid mobile phone number"
+msgstr ""
+
+#: django_tasker_account/validators.py:66
+msgid "A user with that username already exists."
+msgstr ""
+
+#: django_tasker_account/validators.py:93
+msgid "Enter a valid email address."
+msgstr ""
+
+#: django_tasker_account/validators.py:118
+msgid "User with this email is already exists."
+msgstr ""
+
+#: django_tasker_account/validators.py:143
+msgid "User with this email is not exists"
+msgstr ""
+
+#: django_tasker_account/validators.py:212
+msgid "Email address cannot be registered!"
+msgstr ""
+
+#: django_tasker_account/validators.py:226
+msgid "For the password, you can use only Latin letters, numbers, and symbols"
+msgstr ""
+
+#: django_tasker_account/views.py:67
+msgid "A confirmation email has been sent to your email address"
+msgstr ""
+
+#: django_tasker_account/views.py:108
+msgid "Your address has been successfully verified"
+msgstr ""
+
+#: django_tasker_account/views.py:122
+msgid "Password reset sent"
+msgstr ""
+
+#: django_tasker_account/views.py:139
+msgid "Password reset complete"
+msgstr ""
+
+#: django_tasker_account/views.py:150 django_tasker_account/views.py:151
+msgid "Application OAuth Google is disabled"
+msgstr ""
+
+#: django_tasker_account/views.py:218
+msgid "Allowed to use for authorization domain gmail.com"
+msgstr ""
+
+#: django_tasker_account/views.py:236 django_tasker_account/views.py:237
+msgid "Application OAuth Yandex is disabled"
+msgstr ""
+
+#: django_tasker_account/views.py:247 django_tasker_account/views.py:248
+#: django_tasker_account/views.py:361 django_tasker_account/views.py:362
+msgid "User denied access to data"
+msgstr ""
+
+#: django_tasker_account/views.py:329
+msgid "Allowed to use for authorization domain yandex.ru"
+msgstr ""
+
+#: django_tasker_account/views.py:350 django_tasker_account/views.py:351
+msgid "Application OAuth Mail.ru is disabled"
+msgstr ""
+
+#: django_tasker_account/views.py:424
+msgid ""
+"Allowed to use for authorization domain mail.ru, bk.ru, list.ru, inbox.ru"
+msgstr ""
+
+#: django_tasker_account/views.py:447 django_tasker_account/views.py:448
+msgid "Application OAuth Vk.com is disabled"
+msgstr ""
+
+#: django_tasker_account/views.py:526 django_tasker_account/views.py:527
+msgid "Application OAuth Facebook is disabled"
+msgstr ""
+
+#: django_tasker_account/views.py:715
+msgid "Your password was changed."
+msgstr ""
+
+#: django_tasker_account/views.py:784
+msgid "Avatar successfully uploaded."
+msgstr ""

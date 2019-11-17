@@ -150,3 +150,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 GEOIP_PATH = "/var/lib/GeoIP/"
 
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, "django_tasker_account/locale"),
+)
+print(LOCALE_PATHS)
