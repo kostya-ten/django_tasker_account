@@ -628,7 +628,7 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
             geobase = geocoder.ip(request=request)
 
             # get locality
-            locality = geobase.object.get_family().filter(type=4)
+            locality = geobase.get_family().filter(type=4)
             if locality.exists():
                 user.profile.geobase = locality.last()
                 user.profile.save()
