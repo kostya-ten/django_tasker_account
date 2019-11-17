@@ -16,7 +16,7 @@ with io.open("README.rst", encoding="UTF-8") as readme:
 
 setup(
     name='django-tasker-account',
-    version='0.0.8',
+    version='0.0.9',
     packages=find_packages(),
     include_package_data=True,
     license='Apache License 2.0',
