@@ -10,6 +10,7 @@ import json
 from importlib import import_module
 from urllib.parse import urlencode
 from datetime import datetime, timedelta, timezone
+from ipaddress import ip_address as ip_address_obj
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -651,14 +652,20 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
             data.session.delete()
 
             # save geobase
-            print(request.META)
-            geobase = geocoder.ip(request=request)
+            ip = request.META.get('HTTP_X_FORWARDED_FOR')
+            if ip:
+                ip = ip_address_obj(address=ip.split(',')[0])
+            else:
+                ip = ip_address_obj(address=request.META.get('REMOTE_ADDR'))
 
-            # get locality
-            locality = geobase.get(geo_type=4)
-            if locality:
-                user.profile.geobase = locality
-                user.profile.save()
+            if ip.is_global:
+                geobase = geocoder.ip(request=request)
+
+                # get locality
+                locality = geobase.get(geo_type=4)
+                if locality:
+                    user.profile.geobase = locality
+                    user.profile.save()
 
             # Authentication
             auth.login(request, user)
