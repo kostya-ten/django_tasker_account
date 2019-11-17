@@ -90,13 +90,20 @@ def confirm_email(request: WSGIRequest, data: converters.ConfirmEmail):
         # user.profile.language = get_supported_language_variant(get_language_from_request(request))
 
         # save geobase
-        geobase = geocoder.ip(request=request)
+        ip = request.META.get('HTTP_X_FORWARDED_FOR')
+        if ip:
+            ip = ip_address_obj(address=ip.split(',')[0])
+        else:
+            ip = ip_address_obj(address=request.META.get('REMOTE_ADDR'))
 
-        # get locality
-        locality = geobase.get(geo_type=4)
-        if locality:
-            user.profile.geobase = locality
-            user.profile.save()
+        if ip.is_global:
+            geobase = geocoder.ip(request=request)
+
+            # get locality
+            locality = geobase.get(geo_type=4)
+            if locality:
+                user.profile.geobase = locality
+                user.profile.save()
 
         messages.success(request, _("Your address has been successfully verified"))
         return redirect(data.next)
