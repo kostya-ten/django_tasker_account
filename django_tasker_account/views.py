@@ -652,6 +652,7 @@ def oauth_completion(request: WSGIRequest, data: converters.OAuth):
 
             # save geobase
             geobase = geocoder.ip(request=request)
+            print(geobase)
 
             # get locality
             locality = geobase.get(geo_type=4)
