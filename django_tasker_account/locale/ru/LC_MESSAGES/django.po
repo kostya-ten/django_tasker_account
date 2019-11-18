@@ -33,7 +33,7 @@ msgstr ""
 #: django_tasker_account/forms.py:145 django_tasker_account/forms.py:150
 #: django_tasker_account/forms.py:329 django_tasker_account/forms.py:365
 msgid "Password"
-msgstr ""
+msgstr "Пароль"
 
 #: django_tasker_account/forms.py:51 django_tasker_account/forms.py:54
 msgid "Remember me"
@@ -41,19 +41,19 @@ msgstr "Запомнить меня"
 
 #: django_tasker_account/forms.py:96
 msgid "Username"
-msgstr ""
+msgstr "Логин"
 
 #: django_tasker_account/forms.py:110
 msgid "Last name"
-msgstr ""
+msgstr "Фамилия"
 
 #: django_tasker_account/forms.py:120
 msgid "First name"
-msgstr ""
+msgstr "Имя"
 
 #: django_tasker_account/forms.py:130 django_tasker_account/forms.py:249
 msgid "Email"
-msgstr ""
+msgstr "Адрес электронной почты"
 
 #: django_tasker_account/forms.py:158
 msgid "Confirm password"
@@ -65,7 +65,7 @@ msgstr ""
 
 #: django_tasker_account/forms.py:332 django_tasker_account/forms.py:368
 msgid "New password"
-msgstr ""
+msgstr "Новый пароль"
 
 #: django_tasker_account/forms.py:340 django_tasker_account/forms.py:343
 #: django_tasker_account/forms.py:376 django_tasker_account/forms.py:379
@@ -74,60 +74,60 @@ msgstr ""
 
 #: django_tasker_account/forms.py:387 django_tasker_account/forms.py:390
 msgid "Old password"
-msgstr ""
+msgstr "Старый пароль"
 
 #: django_tasker_account/forms.py:425 django_tasker_account/models.py:19
 msgid "Male"
-msgstr ""
+msgstr "Мужской"
 
 #: django_tasker_account/forms.py:426 django_tasker_account/models.py:20
 msgid "Female"
-msgstr ""
+msgstr "Женский"
 
 #: django_tasker_account/forms.py:434 django_tasker_account/forms.py:437
 msgid "last name"
-msgstr ""
+msgstr "фимилия"
 
 #: django_tasker_account/forms.py:445 django_tasker_account/forms.py:448
 msgid "first name"
-msgstr ""
+msgstr "имя"
 
 #: django_tasker_account/forms.py:458
 msgid "gender"
-msgstr ""
+msgstr "пол"
 
 #: django_tasker_account/forms.py:466 django_tasker_account/forms.py:469
 #: django_tasker_account/models.py:46
 msgid "Birth date"
-msgstr ""
+msgstr "Дата рождения"
 
 #: django_tasker_account/forms.py:479
 msgid "language"
-msgstr ""
+msgstr "язык"
 
 #: django_tasker_account/forms.py:515 django_tasker_account/forms.py:518
 msgid "location"
-msgstr ""
+msgstr "местоположение"
 
 #: django_tasker_account/models.py:26 django_tasker_account/models.py:85
 msgid "User"
-msgstr ""
+msgstr "Пользователь"
 
 #: django_tasker_account/models.py:32
 msgid "Language"
-msgstr ""
+msgstr "Язык"
 
 #: django_tasker_account/models.py:40
 msgid "Gender"
-msgstr ""
+msgstr "Пол"
 
 #: django_tasker_account/models.py:53
 msgid "Mobile phone"
-msgstr ""
+msgstr "Мобильный номер телефона"
 
 #: django_tasker_account/models.py:61
 msgid "Geobase"
-msgstr ""
+msgstr "Геобаза"
 
 #: django_tasker_account/models.py:86
 msgid "Oauth ID"
@@ -135,7 +135,7 @@ msgstr ""
 
 #: django_tasker_account/models.py:87
 msgid "Server"
-msgstr ""
+msgstr "Сервер"
 
 #: django_tasker_account/models.py:89
 msgid "Access token"
@@ -151,28 +151,28 @@ msgstr ""
 
 #: django_tasker_account/templates/django_tasker_account/base.html:25
 msgid "Personal info"
-msgstr ""
+msgstr "Персональная информация"
 
 #: django_tasker_account/templates/django_tasker_account/base.html:28
 msgid "Change password"
-msgstr ""
+msgstr "Сменить пароль"
 
 #: django_tasker_account/templates/django_tasker_account/base.html:31
 msgid "My location"
-msgstr ""
+msgstr "Моё местоположение"
 
 #: django_tasker_account/templates/django_tasker_account/base.html:34
 msgid "Avatar"
-msgstr ""
+msgstr "Аватар"
 
 #: django_tasker_account/templates/django_tasker_account/base.html:37
 msgid "Log out"
-msgstr ""
+msgstr "Выход"
 
 #: django_tasker_account/templates/django_tasker_account/email/forgot_password.body.html:24
 #: django_tasker_account/templates/django_tasker_account/email/forgot_password.subject.txt:2
 msgid "Password recovery"
-msgstr ""
+msgstr "Восстановление пароля"
 
 #: django_tasker_account/templates/django_tasker_account/email/forgot_password.body.html:27
 msgid ""
@@ -294,8 +294,8 @@ msgstr ""
 
 #: django_tasker_account/views.py:715
 msgid "Your password was changed."
-msgstr ""
+msgstr "Ваш пароль изменен"
 
 #: django_tasker_account/views.py:784
 msgid "Avatar successfully uploaded."
-msgstr ""
+msgstr "Аватар успешно загружен"
