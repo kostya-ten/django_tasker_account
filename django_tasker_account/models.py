@@ -27,7 +27,7 @@ class Profile(models.Model):
     )
 
     language = models.CharField(
-        max_length=5,
+        max_length=255,
         choices=settings.LANGUAGES,
         verbose_name=_("Language"),
         default=get_supported_language_variant(getattr(settings, 'LANGUAGE_CODE', 'en-US'), strict=False)
